@@ -18,6 +18,11 @@ import {
   updatePortfolioItem,
   deletePortfolioItem,
   reorderPortfolioItems,
+  getCommissionCategories,
+  saveCommissionCategories,
+  addCommissionCategory,
+  deleteCommissionCategory,
+  updateCommissionCategory,
   getSocialLinks,
   saveSocialLinks,
   addSocialLink,
@@ -57,6 +62,10 @@ class PetEmbroCustomizer {
       if (e.target.closest('#footer-edit-socials-btn') || e.target.closest('.customizer-socials-trigger')) {
         e.preventDefault();
         this.openSocialsModal();
+      }
+      if (e.target.closest('.btn-manage-commission-categories') || e.target.closest('#btn-customizer-categories')) {
+        e.preventDefault();
+        this.openCommissionCategoriesModal();
       }
     });
   }
@@ -624,11 +633,123 @@ class PetEmbroCustomizer {
     renderModalContent();
   }
 
+  // Commission Categories Modal (Add, Edit, Remove products in the inquiry form)
+  openCommissionCategoriesModal() {
+    const container = document.getElementById('customizer-modal-container');
+    if (!container) return;
+
+    const renderModalContent = () => {
+      const categories = getCommissionCategories();
+
+      container.innerHTML = `
+        <div id="categories-modal-backdrop" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div class="bg-linen-100 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-linen-300 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-linen-300 mb-5">
+              <div>
+                <h3 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+                  <span>🛍️</span> Commission Products & Categories
+                </h3>
+                <p class="text-xs text-stone-600 mt-0.5">Customize the product formats and options clients select when commissioning an artwork.</p>
+              </div>
+              <button id="categories-close-btn" class="w-8 h-8 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 flex items-center justify-center font-bold">✕</button>
+            </div>
+
+            <!-- Existing Categories List -->
+            <div class="space-y-2.5 mb-6">
+              <p class="text-xs font-bold uppercase tracking-wider text-stone-700">Active Form Options (${categories.length})</p>
+              ${categories.length === 0 ? `
+                <div class="p-4 rounded-xl bg-linen-200 text-center text-xs text-stone-600">
+                  No categories currently set. Add your first product below!
+                </div>
+              ` : categories.map((cat, idx) => `
+                <div class="flex items-center gap-2 p-2 rounded-2xl bg-white border border-linen-300 shadow-sm" data-category-id="${cat.id}">
+                  <span class="w-6 h-6 rounded-full bg-linen-200 text-stone-600 text-[11px] font-bold flex items-center justify-center flex-shrink-0">${idx + 1}</span>
+                  <input type="text" class="category-edit-input flex-grow text-xs font-medium text-stone-900 bg-transparent outline-none focus:ring-1 focus:ring-terracotta rounded px-2 py-1" value="${cat.label}" data-category-id="${cat.id}" placeholder="Product name..." />
+                  <button type="button" class="btn-delete-category p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 text-sm transition" data-category-id="${cat.id}" title="Remove this option">
+                    🗑️
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Add New Category Form -->
+            <div class="p-4 rounded-2xl bg-linen-200/80 border border-linen-300 mb-6">
+              <p class="text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">➕ Add New Category / Product</p>
+              <form id="add-category-form" class="flex gap-2">
+                <input type="text" id="new-category-input" required placeholder="e.g. Embroidered Denim Jacket, Tote Bag, etc." class="flex-grow px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-xs focus:ring-2 focus:ring-terracotta/40 outline-none" />
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-semibold text-xs transition shadow flex-shrink-0">
+                  Add
+                </button>
+              </form>
+            </div>
+
+            <!-- Footer / Done Button -->
+            <div class="pt-4 border-t border-linen-300 flex items-center justify-between">
+              <span class="text-[11px] text-stone-500">Auto-saves to inquiry dropdown</span>
+              <button id="categories-done-btn" class="px-6 py-2.5 rounded-full bg-stone-900 hover:bg-terracotta text-white font-semibold text-xs shadow transition">
+                Done & Apply Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Close handlers
+      const closeModal = () => {
+        container.innerHTML = '';
+        this.handleRoute(); // re-render to update dropdowns in view
+      };
+      document.getElementById('categories-close-btn')?.addEventListener('click', closeModal);
+      document.getElementById('categories-done-btn')?.addEventListener('click', closeModal);
+
+      // Add category
+      document.getElementById('add-category-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('new-category-input');
+        const val = input?.value.trim();
+        if (val) {
+          addCommissionCategory(val);
+          this.showToast(`Added "${val}" to commission products!`);
+          renderModalContent();
+        }
+      });
+
+      // Edit category inline
+      container.querySelectorAll('.category-edit-input').forEach(inp => {
+        inp.addEventListener('change', (e) => {
+          const id = e.target.dataset.categoryId;
+          const val = e.target.value.trim();
+          if (val) {
+            updateCommissionCategory(id, val);
+            this.showToast(`Updated product name`);
+          }
+        });
+      });
+
+      // Delete category
+      container.querySelectorAll('.btn-delete-category').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.categoryId;
+          deleteCommissionCategory(id);
+          this.showToast(`Removed product category`);
+          renderModalContent();
+        });
+      });
+    };
+
+    renderModalContent();
+  }
+
   // Setup toolbar handlers
   bindToolbarEvents() {
     // 1. Edit Socials
     document.getElementById('btn-edit-socials')?.addEventListener('click', () => {
       this.openSocialsModal();
+    });
+
+    // 2. Edit Categories / Products
+    document.getElementById('btn-customizer-categories')?.addEventListener('click', () => {
+      this.openCommissionCategoriesModal();
     });
 
     // 2. Export JSON

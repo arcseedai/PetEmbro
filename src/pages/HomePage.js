@@ -1,5 +1,5 @@
 // Home / Index Page with Parallax Scrolling & Stop Points
-import { getSiteContent, getRandomFeaturedArtwork } from '../services/contentStore.js';
+import { getSiteContent, getRandomFeaturedArtwork, getCommissionCategories } from '../services/contentStore.js';
 
 export function renderHomePage() {
   const root = document.getElementById('app-root');
@@ -10,6 +10,8 @@ export function renderHomePage() {
   const craft = content.craftStory || {};
   const sp1 = content.stopPoint1 || {};
   const sp2 = content.stopPoint2 || {};
+  const inquiry = content.inquiry || {};
+  const categories = getCommissionCategories();
 
   // Randomly select one of the marked featured artworks from portfolio
   const featuredData = getRandomFeaturedArtwork();
@@ -272,11 +274,11 @@ export function renderHomePage() {
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
           <span class="inline-block w-8 h-1 bg-terracotta rounded-full mb-3"></span>
-          <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight">
-            Reserve Your Custom Commission
+          <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight" data-content-key="inquiry.title">
+            ${inquiry.title || 'Reserve Your Custom Commission'}
           </h2>
-          <p class="mt-3 text-stone-600 text-base font-light">
-            Due to the handcrafted nature, we only accept 15 custom pet commissions per month. Send your inquiry below!
+          <p class="mt-3 text-stone-600 text-base font-light" data-content-key="inquiry.subtitle">
+            ${inquiry.subtitle || 'Due to the handcrafted nature, we only accept 15 custom pet commissions per month. Send your inquiry below!'}
           </p>
         </div>
 
@@ -285,40 +287,56 @@ export function renderHomePage() {
           <form id="home-inquiry-form" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Your Name *</label>
-                <input type="text" name="name" required placeholder="e.g. Eleanor Vance" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" />
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
+                  <span data-content-key="inquiry.nameLabel">${inquiry.nameLabel || 'Your Name'}</span> *
+                </label>
+                <input type="text" name="name" required placeholder="${inquiry.namePlaceholder || 'e.g. Eleanor Vance'}" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Email Address *</label>
-                <input type="email" name="email" required placeholder="eleanor@example.com" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" />
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
+                  <span data-content-key="inquiry.emailLabel">${inquiry.emailLabel || 'Email Address'}</span> *
+                </label>
+                <input type="email" name="email" required placeholder="${inquiry.emailPlaceholder || 'eleanor@example.com'}" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" />
               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Pet's Name & Breed *</label>
-                <input type="text" name="pet_details" required placeholder="e.g. Buster, Golden Retriever" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" />
+                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
+                  <span data-content-key="inquiry.subjectLabel">${inquiry.subjectLabel || "Pet's Name & Details"}</span> *
+                </label>
+                <input type="text" name="pet_details" required placeholder="${inquiry.subjectPlaceholder || 'e.g. Buster, Golden Retriever'}" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Keepsake Format *</label>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                    <span data-content-key="inquiry.formatLabel">${inquiry.formatLabel || 'Keepsake Format / Product'}</span> *
+                  </label>
+                  <button type="button" class="btn-manage-commission-categories text-[11px] font-semibold text-terracotta hover:underline flex items-center gap-1" title="Add, edit or delete product categories">
+                    <span>✏️</span> Edit Products
+                  </button>
+                </div>
                 <select name="format" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40">
-                  <option value="keychain">Miniature Wooden Keychain Hoop (1.8")</option>
-                  <option value="wall-4">Framed Wall Hoop (4-inch)</option>
-                  <option value="wall-6">Framed Wall Hoop (6-inch Deluxe)</option>
-                  <option value="gift-voucher">Custom Gift Certificate</option>
+                  ${categories.map(c => `
+                    <option value="${c.id}">${c.label}</option>
+                  `).join('')}
                 </select>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Tell Us About Your Pet & Special Details</label>
-              <textarea name="message" rows="4" placeholder="Any distinctive markings, personality traits, or date needed by..." class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40"></textarea>
+              <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
+                <span data-content-key="inquiry.detailsLabel">${inquiry.detailsLabel || 'Tell Us About Your Pet & Special Details'}</span>
+              </label>
+              <textarea name="message" rows="4" placeholder="${inquiry.detailsPlaceholder || 'Any distinctive markings, personality traits, or date needed by...'}" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40"></textarea>
             </div>
 
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-              <p class="text-xs text-stone-500">🔒 We reply within 24 hours with timeline and photo tips.</p>
+              <p class="text-xs text-stone-500" data-content-key="inquiry.note">
+                ${inquiry.note || '🔒 We reply within 24 hours with timeline and photo tips.'}
+              </p>
               <button type="submit" class="w-full sm:w-auto px-8 py-3.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-semibold text-sm shadow-md hover:shadow transition active:scale-95">
-                Send Commission Inquiry
+                <span data-content-key="inquiry.buttonText">${inquiry.buttonText || 'Send Commission Inquiry'}</span>
               </button>
             </div>
           </form>

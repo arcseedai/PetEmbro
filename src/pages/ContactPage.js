@@ -1,5 +1,5 @@
 // Contact & Commission Inquiries Page
-import { getSiteContent } from '../services/contentStore.js';
+import { getSiteContent, getCommissionCategories } from '../services/contentStore.js';
 
 export function renderContactPage() {
   const root = document.getElementById('app-root');
@@ -8,6 +8,7 @@ export function renderContactPage() {
   const content = getSiteContent();
   const contact = content.contact || {};
   const socials = content.socials || {};
+  const categories = getCommissionCategories();
 
   root.innerHTML = `
     <div class="min-h-screen bg-linen-weave py-8 sm:py-16">
@@ -122,13 +123,16 @@ export function renderContactPage() {
                   <input type="text" name="pet_info" required placeholder="e.g. Toby, British Shorthair" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:ring-2 focus:ring-terracotta/40 focus:outline-none" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Desired Keepsake Format</label>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Desired Keepsake Format / Product</label>
+                    <button type="button" class="btn-manage-commission-categories text-[11px] font-semibold text-terracotta hover:underline flex items-center gap-1" title="Add, edit or delete product categories">
+                      <span>✏️</span> Edit Products
+                    </button>
+                  </div>
                   <select name="keepsake_format" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:ring-2 focus:ring-terracotta/40 focus:outline-none">
-                    <option value="keychain">Miniature Keychain Hoop (1.8")</option>
-                    <option value="wall-4">Framed Wall Hoop (4")</option>
-                    <option value="wall-5">Framed Wall Hoop (5")</option>
-                    <option value="wall-6">Framed Wall Hoop (6" Deluxe)</option>
-                    <option value="memorial">Memorial with Golden Halo</option>
+                    ${categories.map(c => `
+                      <option value="${c.id}">${c.label}</option>
+                    `).join('')}
                   </select>
                 </div>
               </div>

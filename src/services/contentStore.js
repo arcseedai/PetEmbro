@@ -101,6 +101,28 @@ export const defaultSiteContent = {
     hours: 'Mon – Fri: 9:00 AM – 6:00 PM (EST)',
     location: 'Montréal & Burlington • Worldwide Shipping'
   },
+  inquiry: {
+    badge: 'Custom Commission',
+    title: 'Reserve Your Custom Commission',
+    subtitle: 'Due to the handcrafted nature, we only accept 15 custom pet commissions per month. Send your inquiry below!',
+    nameLabel: 'Your Name',
+    namePlaceholder: 'e.g. Eleanor Vance',
+    emailLabel: 'Email Address',
+    emailPlaceholder: 'eleanor@example.com',
+    subjectLabel: "Pet's Name & Details",
+    subjectPlaceholder: 'e.g. Buster, Golden Retriever',
+    formatLabel: 'Keepsake Format / Product',
+    detailsLabel: 'Tell Us About Your Pet & Special Details',
+    detailsPlaceholder: 'Any distinctive markings, personality traits, or date needed by...',
+    buttonText: 'Send Commission Inquiry',
+    note: '🔒 We reply within 24 hours with timeline and photo tips.'
+  },
+  commissionCategories: [
+    { id: 'cat1', label: 'Miniature Wooden Keychain Hoop (1.8")' },
+    { id: 'cat2', label: 'Framed Wall Hoop (4-inch)' },
+    { id: 'cat3', label: 'Framed Wall Hoop (6-inch Deluxe)' },
+    { id: 'cat4', label: 'Custom Gift Certificate' }
+  ],
   footer: {
     socialTitle: 'Social Media',
     socialDesc: 'Watch behind-the-scenes stitching time-lapses and new customer reveals daily!',
@@ -398,6 +420,41 @@ export function deleteSocialLink(id) {
   links = links.filter(l => l.id !== id);
   saveSocialLinks(links);
 }
+
+// Commission Product Categories CRUD
+export function getCommissionCategories() {
+  const content = getSiteContent();
+  return content.commissionCategories || defaultSiteContent.commissionCategories;
+}
+
+export function saveCommissionCategories(categories) {
+  const content = getSiteContent();
+  content.commissionCategories = categories;
+  saveSiteContent(content);
+}
+
+export function addCommissionCategory(label) {
+  const categories = getCommissionCategories();
+  const id = 'cat_' + Date.now();
+  categories.push({ id, label: label.trim() });
+  saveCommissionCategories(categories);
+}
+
+export function deleteCommissionCategory(id) {
+  let categories = getCommissionCategories();
+  categories = categories.filter(c => c.id !== id);
+  saveCommissionCategories(categories);
+}
+
+export function updateCommissionCategory(id, newLabel) {
+  const categories = getCommissionCategories();
+  const cat = categories.find(c => c.id === id);
+  if (cat) {
+    cat.label = newLabel.trim();
+    saveCommissionCategories(categories);
+  }
+}
+
 
 // Reset all to initial defaults
 export function resetSiteContent() {

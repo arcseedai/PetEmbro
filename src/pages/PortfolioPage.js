@@ -1,5 +1,5 @@
 // Portfolio / Gallery Page with Featured Header and Lightbox Modal
-import { getSiteContent } from '../services/contentStore.js';
+import { getSiteContent, getRandomFeaturedArtwork } from '../services/contentStore.js';
 
 export function renderPortfolioPage() {
   const root = document.getElementById('app-root');
@@ -10,7 +10,8 @@ export function renderPortfolioPage() {
     ? content.portfolioItems
     : [];
 
-  const featuredItem = portfolioItems.find(p => p.featured) || portfolioItems[0];
+  const featuredData = getRandomFeaturedArtwork();
+  const featuredItem = featuredData.item;
 
   root.innerHTML = `
     <div class="min-h-screen bg-linen-weave py-8 sm:py-16">
@@ -111,6 +112,11 @@ export function renderPortfolioPage() {
                 <div class="absolute bottom-2 left-2 bg-stone-900/70 backdrop-blur-sm text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium">
                   ${item.categoryLabel}
                 </div>
+                ${item.featured ? `
+                  <div class="absolute top-2 right-2 bg-amber-500 text-stone-950 px-2 py-0.5 rounded-full text-[10px] font-bold shadow flex items-center gap-1 z-10" title="Featured in header showcase rotation">
+                    <span>★</span> Featured
+                  </div>
+                ` : ''}
               </div>
 
               <!-- Card Details -->

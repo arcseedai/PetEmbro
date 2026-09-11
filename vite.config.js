@@ -2,6 +2,11 @@ import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  server: {
+    watch: {
+      ignored: ['**/downloads/**', '**/scratch/**', '**/public/assets/New folder/**'],
+    },
+  },
   build: {
     rollupOptions: {
       input: {

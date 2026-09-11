@@ -214,21 +214,34 @@ class PetEmbroCustomizer {
       if (!item) return;
 
       const actions = document.createElement('div');
-      actions.className = 'customizer-card-actions flex items-center justify-end gap-1.5 p-2 bg-stone-900/90 backdrop-blur text-white text-[11px] border-b border-linen-300';
+      actions.className = 'customizer-card-actions flex items-center justify-between gap-1.5 p-2 bg-stone-900/90 backdrop-blur text-white text-[11px] border-b border-linen-300';
       actions.innerHTML = `
-        <label class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 cursor-pointer transition flex items-center gap-1" title="Replace this photo">
-          <span>📷</span> Photo
-          <input type="file" accept="image/*" class="hidden customizer-replace-photo-input" data-item-id="${itemId}">
-        </label>
-        <button class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 transition flex items-center gap-1 btn-edit-portfolio" data-item-id="${itemId}" title="Edit text and specifications">
-          <span>✏️</span> Edit
+        <button class="px-2 py-1 rounded ${item.featured ? 'bg-amber-600 hover:bg-amber-500 text-white font-bold' : 'bg-stone-800 hover:bg-stone-700 text-stone-300'} transition flex items-center gap-1 btn-toggle-featured" data-item-id="${itemId}" title="${item.featured ? 'Marked as Featured in Header Showcase (Click to unfeature)' : 'Click to feature in Header Showcase'}">
+          <span>${item.featured ? '★ Featured' : '☆ Feature'}</span>
         </button>
-        <button class="px-2 py-1 rounded bg-red-900/80 hover:bg-red-800 text-white transition flex items-center gap-1 btn-delete-portfolio" data-item-id="${itemId}" title="Delete artwork">
-          <span>🗑️</span>
-        </button>
+        <div class="flex items-center gap-1.5">
+          <label class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 cursor-pointer transition flex items-center gap-1" title="Replace this photo">
+            <span>📷</span> Photo
+            <input type="file" accept="image/*" class="hidden customizer-replace-photo-input" data-item-id="${itemId}">
+          </label>
+          <button class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 transition flex items-center gap-1 btn-edit-portfolio" data-item-id="${itemId}" title="Edit text and specifications">
+            <span>✏️</span> Edit
+          </button>
+          <button class="px-2 py-1 rounded bg-red-900/80 hover:bg-red-800 text-white transition flex items-center gap-1 btn-delete-portfolio" data-item-id="${itemId}" title="Delete artwork">
+            <span>🗑️</span>
+          </button>
+        </div>
       `;
 
       card.prepend(actions);
+
+      // Handle 1-click featured toggle
+      actions.querySelector('.btn-toggle-featured')?.addEventListener('click', () => {
+        const newFeatured = !item.featured;
+        updatePortfolioItem(itemId, { featured: newFeatured });
+        this.showToast(newFeatured ? `⭐ "${item.name}" added to Featured Showcase rotation!` : `Removed "${item.name}" from showcase rotation.`);
+        this.handleRoute();
+      });
 
       // Handle file replacement
       const fileInput = actions.querySelector('.customizer-replace-photo-input');

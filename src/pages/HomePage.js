@@ -1,5 +1,5 @@
 // Home / Index Page with Parallax Scrolling & Stop Points
-import { getSiteContent } from '../services/contentStore.js';
+import { getSiteContent, getRandomFeaturedArtwork } from '../services/contentStore.js';
 
 export function renderHomePage() {
   const root = document.getElementById('app-root');
@@ -10,6 +10,19 @@ export function renderHomePage() {
   const craft = content.craftStory || {};
   const sp1 = content.stopPoint1 || {};
   const sp2 = content.stopPoint2 || {};
+
+  // Randomly select one of the marked featured artworks from portfolio
+  const featuredData = getRandomFeaturedArtwork();
+  const featuredArt = featuredData.item;
+  const pool = featuredData.pool || [];
+  let currentFeaturedIndex = featuredData.index;
+
+  const displayImage = featuredArt.image || hero.featuredImage || '/assets/keychain_ref.png';
+  const displayName = featuredArt.name
+    ? (featuredArt.breed ? `${featuredArt.name} the ${featuredArt.breed}` : featuredArt.name)
+    : (hero.featuredName || 'Rocky the Boxer');
+  const displayDesc = featuredArt.categoryLabel || featuredArt.size || hero.featuredDesc || 'Miniature Wooden Hoop Keychain';
+  const poolCount = featuredData.totalFeatured;
 
   root.innerHTML = `
     <!-- 1. HERO SECTION -->
@@ -61,22 +74,31 @@ export function renderHomePage() {
         </div>
 
         <!-- Featured Reference Keychain Preview Float -->
-        <div class="mt-14 max-w-sm sm:max-w-md mx-auto relative group">
+        <div class="mt-14 max-w-sm sm:max-w-md mx-auto relative group" id="hero-featured-showcase">
           <div class="p-3 bg-white/80 backdrop-blur rounded-3xl shadow-xl border border-linen-300 transform group-hover:scale-[1.02] transition-transform duration-300">
             <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
-              <img src="${hero.featuredImage || '/assets/keychain_ref.png'}" data-image-key="hero.featuredImage" alt="Handcrafted Boxer Dog Embroidery Keychain" class="w-full h-full object-cover object-center" />
-              <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/80 backdrop-blur-md rounded-xl text-white text-left flex items-center justify-between">
+              <img id="hero-featured-img" src="${displayImage}" data-image-key="hero.featuredImage" alt="${displayName} Keepsake" class="w-full h-full object-cover object-center transition-opacity duration-300" />
+              <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/85 backdrop-blur-md rounded-xl text-white text-left flex items-center justify-between">
                 <div>
-                  <p class="font-serif font-bold text-sm" data-content-key="hero.featuredName">${hero.featuredName || 'Rocky the Boxer'}</p>
-                  <p class="text-[11px] text-linen-300" data-content-key="hero.featuredDesc">${hero.featuredDesc || 'Miniature Wooden Hoop Keychain'}</p>
+                  <p id="hero-featured-name" class="font-serif font-bold text-sm text-amber-100" data-content-key="hero.featuredName">${displayName}</p>
+                  <p id="hero-featured-desc" class="text-[11px] text-linen-300" data-content-key="hero.featuredDesc">${displayDesc}</p>
                 </div>
-                <a href="#preview" class="text-xs bg-terracotta hover:bg-terracotta-dark px-3 py-1.5 rounded-full font-medium transition">Try 3D View</a>
+                <div class="flex items-center gap-2">
+                  ${pool.length > 1 ? `
+                    <button type="button" id="hero-shuffle-btn" class="px-2.5 py-1.5 rounded-full bg-stone-800/90 hover:bg-terracotta text-white text-[11px] font-medium border border-white/20 flex items-center gap-1 transition" title="Randomize / Next Featured Artwork">
+                      <span>🎲</span>
+                      <span id="hero-featured-counter" class="text-[10px] text-stone-300">${currentFeaturedIndex + 1}/${pool.length}</span>
+                    </button>
+                  ` : ''}
+                  <a href="#preview" class="text-xs bg-terracotta hover:bg-terracotta-dark px-3 py-1.5 rounded-full font-medium transition">Try 3D View</a>
+                </div>
               </div>
             </div>
           </div>
           <!-- Craft Guarantee Badge -->
           <div class="absolute -bottom-4 -right-4 bg-wood-dark text-linen-100 px-4 py-2 rounded-2xl shadow-lg border-2 border-linen-100 flex items-center gap-2 text-xs font-semibold">
-            <span class="text-needle-gold text-base">★</span> 100% Hand-Stitched
+            <span class="text-needle-gold text-base">★</span>
+            <span id="hero-featured-badge-text">${pool.length > 1 ? `Featured Keepsake (${pool.length} in rotation)` : '100% Hand-Stitched'}</span>
           </div>
         </div>
       </div>
@@ -304,10 +326,45 @@ export function renderHomePage() {
     </section>
   `;
 
-  bindHomeEvents();
+  bindHomeEvents(pool, currentFeaturedIndex);
 }
 
-function bindHomeEvents() {
+function bindHomeEvents(pool = [], initialIndex = 0) {
+  let currentIndex = initialIndex;
+
+  // Hero showcase interactive shuffle button
+  const shuffleBtn = document.getElementById('hero-shuffle-btn');
+  if (shuffleBtn && pool.length > 1) {
+    shuffleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentIndex = (currentIndex + 1) % pool.length;
+      const nextItem = pool[currentIndex];
+
+      const imgEl = document.getElementById('hero-featured-img');
+      const nameEl = document.getElementById('hero-featured-name');
+      const descEl = document.getElementById('hero-featured-desc');
+      const counterEl = document.getElementById('hero-featured-counter');
+
+      if (imgEl) {
+        imgEl.style.opacity = '0';
+        setTimeout(() => {
+          imgEl.src = nextItem.image || '/assets/keychain_ref.png';
+          imgEl.alt = `${nextItem.name} Keepsake`;
+          imgEl.style.opacity = '1';
+        }, 150);
+      }
+      if (nameEl) {
+        nameEl.textContent = nextItem.breed ? `${nextItem.name} the ${nextItem.breed}` : nextItem.name;
+      }
+      if (descEl) {
+        descEl.textContent = nextItem.categoryLabel || nextItem.size || 'Miniature Keepsake';
+      }
+      if (counterEl) {
+        counterEl.textContent = `${currentIndex + 1}/${pool.length}`;
+      }
+    });
+  }
+
   const form = document.getElementById('home-inquiry-form');
   form?.addEventListener('submit', (e) => {
     e.preventDefault();

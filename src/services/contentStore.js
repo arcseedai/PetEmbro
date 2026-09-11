@@ -142,7 +142,7 @@ export const defaultSiteContent = {
       hours: '18 Hours',
       image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=800&q=80',
       caption: 'Golden fur blending with subtle champagne thread highlights, surrounded by delicate wildflower embroidery.',
-      featured: false
+      featured: true
     },
     {
       id: 3,
@@ -303,6 +303,49 @@ export function deletePortfolioItem(id) {
   content.portfolioItems = content.portfolioItems.filter(p => p.id !== id);
   saveSiteContent(content);
 }
+
+// Get randomly selected featured artwork from marked items
+export function getRandomFeaturedArtwork() {
+  const content = getSiteContent();
+  const items = content.portfolioItems || [];
+  const featuredPool = items.filter(p => Boolean(p.featured));
+
+  if (featuredPool.length > 0) {
+    const randomIndex = Math.floor(Math.random() * featuredPool.length);
+    const item = featuredPool[randomIndex];
+    return {
+      item,
+      totalFeatured: featuredPool.length,
+      index: randomIndex,
+      pool: featuredPool
+    };
+  }
+
+  if (items.length > 0) {
+    return {
+      item: items[0],
+      totalFeatured: 1,
+      index: 0,
+      pool: [items[0]]
+    };
+  }
+
+  return {
+    item: {
+      name: content.hero?.featuredName || 'Rocky the Boxer',
+      breed: 'Boxer Mastiff',
+      categoryLabel: content.hero?.featuredDesc || 'Miniature Wooden Hoop Keychain',
+      size: '1.8" Beechwood Hoop',
+      hours: '14 Hours',
+      image: content.hero?.featuredImage || '/assets/keychain_ref.png',
+      caption: 'Handcrafted miniature portrait.'
+    },
+    totalFeatured: 1,
+    index: 0,
+    pool: []
+  };
+}
+
 
 // Social Links CRUD
 export function getSocialLinks() {

@@ -6,23 +6,53 @@ import { FilesetResolver, ImageSegmenter } from '@mediapipe/tasks-vision';
 let segmenterPromise = null;
 const cutoutCache = new Map();
 
+function getBasePath() {
+  if (typeof window === 'undefined') return '';
+  const cleanHref = window.location.href.split('#')[0].split('?')[0];
+  return cleanHref.endsWith('/') ? cleanHref : cleanHref.substring(0, cleanHref.lastIndexOf('/') + 1);
+}
+
 async function getSegmenter(onProgress) {
   if (segmenterPromise) return segmenterPromise;
 
   segmenterPromise = (async () => {
+    const basePath = getBasePath();
+    const wasmPath = new URL('wasm', basePath).href;
+    const modelPath = new URL('models/deeplab_v3.tflite', basePath).href;
+
     if (onProgress) onProgress('Loading lightweight engine...', 25);
-    const vision = await FilesetResolver.forVisionTasks('/wasm');
+    let vision;
+    try {
+      vision = await FilesetResolver.forVisionTasks(wasmPath);
+    } catch (err) {
+      console.warn('Local wasm failed, trying CDN fallback:', err);
+      vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm');
+    }
     
     if (onProgress) onProgress('Loading pet model (2.7 MB)...', 55);
-    const segmenter = await ImageSegmenter.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath: '/models/deeplab_v3.tflite',
-        delegate: 'CPU'
-      },
-      runningMode: 'IMAGE',
-      outputCategoryMask: true,
-      outputConfidenceMasks: false
-    });
+    let segmenter;
+    try {
+      segmenter = await ImageSegmenter.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: modelPath,
+          delegate: 'CPU'
+        },
+        runningMode: 'IMAGE',
+        outputCategoryMask: true,
+        outputConfidenceMasks: false
+      });
+    } catch (err) {
+      console.warn('Local model failed, trying Google CDN fallback:', err);
+      segmenter = await ImageSegmenter.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite',
+          delegate: 'CPU'
+        },
+        runningMode: 'IMAGE',
+        outputCategoryMask: true,
+        outputConfidenceMasks: false
+      });
+    }
     return segmenter;
   })();
 

@@ -107,17 +107,38 @@
   }
 }
 
+/* Soft floating wave motion for individual cards */
+@keyframes marqueeWave {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.marquee-card-wave {
+  animation: marqueeWave 5.5s ease-in-out infinite;
+}
+
 .featured-marquee-track {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   width: max-content;
   will-change: transform;
+  align-items: center;
   animation: marqueeLeft 45s linear infinite;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .featured-marquee-track {
-    gap: 2.25rem;
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .featured-marquee-track {
+    gap: 1.5rem;
   }
 }
 
@@ -125,8 +146,8 @@
   overflow: hidden;
   position: relative;
   width: 100%;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
   -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
   mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
 }

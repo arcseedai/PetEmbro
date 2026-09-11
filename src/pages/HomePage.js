@@ -97,10 +97,12 @@ export function renderHomePage() {
                 const itemAdd = item.additionalInfo || item.breed || '';
                 const itemTitle = item.name ? (itemAdd ? `${item.name} (${itemAdd})` : item.name) : 'Keepsake';
                 const itemSub = item.categoryLabel || item.size || 'Miniature Hoop';
+                // Stagger the wave phase for each card to create an organic flowing wave
+                const delay = ((idx % 8) * -0.68).toFixed(2);
 
                 return `
-                  <div class="w-64 sm:w-80 md:w-96 lg:w-[380px] flex-shrink-0 group/card text-left transition transform hover:-translate-y-1.5 duration-300">
-                    <div class="p-3.5 sm:p-4 bg-white/95 backdrop-blur rounded-3xl shadow-xl hover:shadow-2xl border border-linen-300">
+                  <div class="w-64 sm:w-72 md:w-80 lg:w-[350px] flex-shrink-0 group/card text-left transition duration-300 marquee-card-wave" style="animation-delay: ${delay}s;">
+                    <div class="p-3 sm:p-3.5 bg-white/95 backdrop-blur rounded-3xl shadow-xl hover:shadow-2xl border border-linen-300 transition-transform duration-300 hover:scale-[1.02]">
                       <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
                         <img src="${item.image || '/assets/keychain_ref.png'}" alt="${itemTitle}" class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-500" loading="lazy" />
                         <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/90 backdrop-blur-md rounded-2xl text-white flex items-center justify-between gap-2 shadow-lg">

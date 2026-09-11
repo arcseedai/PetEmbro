@@ -3,6 +3,7 @@
 @layer utilities {
   /* Running Stitch Borders */
   .stitch-line {
+    background-color: #FAF6F0;
     background-image: repeating-linear-gradient(
       90deg,
       #C25D43,

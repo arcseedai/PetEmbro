@@ -18,6 +18,9 @@ export function renderNavbar(activePage = 'home') {
   ];
 
   header.innerHTML = `
+    <!-- Top Running Stitch Accent Border with Solid Linen Background -->
+    <div class="h-1.5 w-full stitch-line"></div>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-18 sm:h-20">
         <!-- Logo & Brand Name -->

@@ -1,8 +1,12 @@
 // About Me / The Artisan & Craft Story Page
+import { getSiteContent } from '../services/contentStore.js';
 
 export function renderAboutPage() {
   const root = document.getElementById('app-root');
   if (!root) return;
+
+  const content = getSiteContent();
+  const about = content.about || {};
 
   root.innerHTML = `
     <div class="min-h-screen bg-linen-weave py-8 sm:py-16">
@@ -12,13 +16,13 @@ export function renderAboutPage() {
         <div class="text-center max-w-3xl mx-auto mb-16">
           <div class="inline-flex items-center gap-2 text-wood-medium text-xs font-bold uppercase tracking-widest mb-2">
             <span class="w-2 h-2 rounded-full bg-wood"></span>
-            The Artisan Behind PetEmbro
+            <span data-content-key="about.badge">${about.badge || 'The Artisan Behind PetEmbro'}</span>
           </div>
-          <h1 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight">
-            Handcrafted with Thread, Needle & Devotion
+          <h1 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight" data-content-key="about.headline">
+            ${about.headline || 'Handcrafted with Thread, Needle & Devotion'}
           </h1>
-          <p class="mt-3 text-stone-600 text-base font-light leading-relaxed">
-            Welcome to my studio! I create miniature textile heirlooms that honor the bond we share with our animal companions.
+          <p class="mt-3 text-stone-600 text-base font-light leading-relaxed" data-content-key="about.subheadline">
+            ${about.subheadline || 'Welcome to my studio! I create miniature textile heirlooms that honor the bond we share with our animal companions.'}
           </p>
         </div>
 
@@ -32,24 +36,24 @@ export function renderAboutPage() {
                 <img src="/assets/keychain_ref.png" alt="PetEmbro Studio in Hand" class="w-full h-full object-cover" />
               </div>
               <div class="absolute -bottom-4 -right-4 bg-wood-dark text-linen-100 p-3 rounded-2xl shadow-lg text-xs">
-                <p class="font-serif font-bold text-sm">Elena Rostova</p>
-                <p class="text-[10px] text-stone-300">Fiber Artist & Founder</p>
+                <p class="font-serif font-bold text-sm" data-content-key="about.artistName">${about.artistName || 'Elena Rostova'}</p>
+                <p class="text-[10px] text-stone-300" data-content-key="about.artistRole">${about.artistRole || 'Fiber Artist & Founder'}</p>
               </div>
             </div>
 
             <!-- Narrative -->
             <div class="md:col-span-7 space-y-4 text-stone-700 leading-relaxed text-sm sm:text-base font-light">
-              <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
-                "Pets Aren't Just Pets — They're Family."
+              <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900" data-content-key="about.quote">
+                ${about.quote || '"Pets Aren\'t Just Pets — They\'re Family."'}
               </h2>
-              <p>
-                PetEmbro began three years ago when I wanted to keep my rescue dog close to me during long travels. I experimented with micro-embroidery techniques, shrinking complex needlework into a pocket-sized wooden hoop keychain.
+              <p data-content-key="about.p1">
+                ${about.p1 || 'PetEmbro began three years ago when I wanted to keep my rescue dog close to me during long travels. I experimented with micro-embroidery techniques, shrinking complex needlework into a pocket-sized wooden hoop keychain.'}
               </p>
-              <p>
-                When fellow dog parents stopped me in the park asking if I could stitch their puppies, I realized how meaningful a physical, tactile portrait could be compared to a digital photo tucked away in a smartphone.
+              <p data-content-key="about.p2">
+                ${about.p2 || 'When fellow dog parents stopped me in the park asking if I could stitch their puppies, I realized how meaningful a physical, tactile portrait could be compared to a digital photo tucked away in a smartphone.'}
               </p>
-              <p>
-                Today, every single PetEmbro piece is hand-stitched by me in my sunlit studio. No automated machines, no shortcuts — just needle, French knots, single-strand blending, and endless patience.
+              <p data-content-key="about.p3">
+                ${about.p3 || 'Today, every single PetEmbro piece is hand-stitched by me in my sunlit studio. No automated machines, no shortcuts — just needle, French knots, single-strand blending, and endless patience.'}
               </p>
 
               <div class="pt-4 flex flex-wrap items-center gap-3">

@@ -1,107 +1,16 @@
 // Portfolio / Gallery Page with Featured Header and Lightbox Modal
+import { getSiteContent } from '../services/contentStore.js';
 
 export function renderPortfolioPage() {
   const root = document.getElementById('app-root');
   if (!root) return;
 
-  const portfolioItems = [
-    {
-      id: 1,
-      name: 'Rocky',
-      breed: 'Boxer Mastiff',
-      category: 'keychains',
-      categoryLabel: 'Miniature Keychain',
-      size: '1.8" Beechwood Hoop',
-      hours: '14 Hours',
-      image: '/assets/keychain_ref.png',
-      caption: 'Rocky’s soulful gaze stitched with 24 DMC earth tones on unbleached oatmeal linen. Mounted with stainless steel keychain hardware.',
-      featured: true
-    },
-    {
-      id: 2,
-      name: 'Luna',
-      breed: 'Golden Retriever',
-      category: 'dogs',
-      categoryLabel: 'Wall Hoop (5")',
-      size: '5" Bamboo Frame',
-      hours: '18 Hours',
-      image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=800&q=80',
-      caption: 'Golden fur blending with subtle champagne thread highlights, surrounded by delicate wildflower embroidery.',
-      featured: false
-    },
-    {
-      id: 3,
-      name: 'Milo & Cleo',
-      breed: 'Tuxedo & Calico Cats',
-      category: 'cats',
-      categoryLabel: 'Wall Hoop (6")',
-      size: '6" Beechwood Frame',
-      hours: '22 Hours',
-      image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80',
-      caption: 'Double pet portrait capturing the contrasting emerald and amber eyes with fine single-strand silk thread.',
-      featured: false
-    },
-    {
-      id: 4,
-      name: 'Barnaby',
-      breed: 'Basset Hound',
-      category: 'keychains',
-      categoryLabel: 'Miniature Keychain',
-      size: '1.8" Walnut Hoop',
-      hours: '12 Hours',
-      image: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80',
-      caption: 'Signature droopy eyes and long velvety ears in a pocket-sized dark walnut keychain frame.',
-      featured: false
-    },
-    {
-      id: 5,
-      name: 'Winston',
-      breed: 'French Bulldog',
-      category: 'dogs',
-      categoryLabel: 'Miniature Keychain',
-      size: '1.8" Oak Hoop',
-      hours: '15 Hours',
-      image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80',
-      caption: 'Brindle coat textures hand-stitched with intricate micro-knots for lifelike snout wrinkles.',
-      featured: false
-    },
-    {
-      id: 6,
-      name: 'Jasper',
-      breed: 'Tabby Cat',
-      category: 'cats',
-      categoryLabel: 'Wall Hoop (4")',
-      size: '4" Bamboo Hoop',
-      hours: '11 Hours',
-      image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=800&q=80',
-      caption: 'Striped ginger coat with delicate white whisker accents stitched using silver metallic filament.',
-      featured: false
-    },
-    {
-      id: 7,
-      name: 'Daisy',
-      breed: 'Holland Lop Bunny',
-      category: 'special',
-      categoryLabel: 'Wall Hoop (4")',
-      size: '4" Beechwood Hoop',
-      hours: '10 Hours',
-      image: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=800&q=80',
-      caption: 'Soft plush fur created with Turkish stitch loops and hand-brushed cotton.',
-      featured: false
-    },
-    {
-      id: 8,
-      name: 'Zeus',
-      breed: 'German Shepherd (Memorial)',
-      category: 'memorial',
-      categoryLabel: 'Wall Hoop (6")',
-      size: '6" Walnut Hoop',
-      hours: '20 Hours',
-      image: 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&w=800&q=80',
-      caption: 'Loving memorial portrait with golden thread halo and embroidered commemorative birth year.',
-      featured: false
-    }
-  ];
+  const content = getSiteContent();
+  const portfolioItems = content.portfolioItems && content.portfolioItems.length > 0
+    ? content.portfolioItems
+    : [];
+
+  const featuredItem = portfolioItems.find(p => p.featured) || portfolioItems[0];
 
   root.innerHTML = `
     <div class="min-h-screen bg-linen-weave py-8 sm:py-16">
@@ -121,13 +30,14 @@ export function renderPortfolioPage() {
           </p>
         </div>
 
-        <!-- FEATURED HERO SHOWCASE (Large Header Image requested by user) -->
-        <div class="bg-linen-100 rounded-3xl p-6 sm:p-10 shadow-xl border stitch-border-dashed mb-16 overflow-hidden">
+        ${featuredItem ? `
+        <!-- FEATURED HERO SHOWCASE (Large Header Image) -->
+        <div class="bg-linen-100 rounded-3xl p-6 sm:p-10 shadow-xl border stitch-border-dashed mb-16 overflow-hidden" data-portfolio-id="${featuredItem.id}">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <!-- Large Main Showcase Image -->
-            <div class="lg:col-span-7 relative group cursor-pointer portfolio-thumbnail" data-item-id="1">
+            <div class="lg:col-span-7 relative group cursor-pointer portfolio-thumbnail" data-item-id="${featuredItem.id}">
               <div class="rounded-2xl overflow-hidden shadow-lg aspect-[4/3] bg-linen-200 relative">
-                <img src="${portfolioItems[0].image}" alt="${portfolioItems[0].name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src="${featuredItem.image}" alt="${featuredItem.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <span class="px-4 py-2 rounded-full bg-white/90 text-stone-900 font-semibold text-xs shadow">Click to view full size</span>
                 </div>
@@ -140,26 +50,26 @@ export function renderPortfolioPage() {
             <!-- Showcase Information -->
             <div class="lg:col-span-5 space-y-4">
               <div class="inline-flex items-center gap-2 text-xs font-bold text-wood-medium uppercase tracking-wider">
-                ${portfolioItems[0].categoryLabel}
+                ${featuredItem.categoryLabel || 'Miniature Keepsake'}
               </div>
               <h2 class="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
-                ${portfolioItems[0].name}
+                ${featuredItem.name}
               </h2>
               <p class="text-sm font-semibold text-terracotta">
-                ${portfolioItems[0].breed}
+                ${featuredItem.breed}
               </p>
               <p class="text-stone-600 text-sm leading-relaxed">
-                ${portfolioItems[0].caption}
+                ${featuredItem.caption}
               </p>
 
               <div class="grid grid-cols-2 gap-4 py-4 border-y border-linen-300 text-xs">
                 <div>
                   <span class="text-stone-500 block uppercase">Dimensions</span>
-                  <span class="font-semibold text-stone-800">${portfolioItems[0].size}</span>
+                  <span class="font-semibold text-stone-800">${featuredItem.size}</span>
                 </div>
                 <div>
                   <span class="text-stone-500 block uppercase">Stitch Time</span>
-                  <span class="font-semibold text-stone-800">${portfolioItems[0].hours}</span>
+                  <span class="font-semibold text-stone-800">${featuredItem.hours}</span>
                 </div>
               </div>
 
@@ -167,13 +77,14 @@ export function renderPortfolioPage() {
                 <a href="#preview" class="px-6 py-2.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-semibold text-xs sm:text-sm shadow transition">
                   Preview Your Pet in 3D
                 </a>
-                <button class="portfolio-thumbnail px-5 py-2.5 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-800 font-medium text-xs sm:text-sm transition" data-item-id="1">
+                <button class="portfolio-thumbnail px-5 py-2.5 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-800 font-medium text-xs sm:text-sm transition" data-item-id="${featuredItem.id}">
                   Enlarge Photo
                 </button>
               </div>
             </div>
           </div>
         </div>
+        ` : ''}
 
         <!-- CATEGORY FILTER TABS -->
         <div class="flex items-center justify-center flex-wrap gap-2 mb-10" id="filter-tabs">
@@ -188,7 +99,7 @@ export function renderPortfolioPage() {
         <!-- GALLERY GRID OF SMALLER IMAGES (Click to enlarge in Lightbox) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="portfolio-grid">
           ${portfolioItems.map(item => `
-            <div class="portfolio-card bg-linen-100 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-linen-300 group flex flex-col justify-between" data-category="${item.category}">
+            <div class="portfolio-card bg-linen-100 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-linen-300 group flex flex-col justify-between" data-category="${item.category}" data-portfolio-id="${item.id}">
               <!-- Clickable Image for Lightbox -->
               <div class="portfolio-thumbnail relative aspect-square overflow-hidden cursor-pointer bg-linen-200" data-item-id="${item.id}">
                 <img src="${item.image}" alt="${item.name} embroidery" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />

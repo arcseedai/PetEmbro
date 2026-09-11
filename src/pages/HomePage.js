@@ -1,8 +1,13 @@
 // Home / Index Page with Parallax Scrolling & Stop Points
+import { getSiteContent } from '../services/contentStore.js';
 
 export function renderHomePage() {
   const root = document.getElementById('app-root');
   if (!root) return;
+
+  const content = getSiteContent();
+  const hero = content.hero || {};
+  const craft = content.craftStory || {};
 
   root.innerHTML = `
     <!-- 1. HERO SECTION -->
@@ -18,22 +23,22 @@ export function renderHomePage() {
             <circle cx="12" cy="12" r="9" stroke-dasharray="3 2" />
             <path d="M16 6 L8 18" stroke-width="2" />
           </svg>
-          <span>Handcrafted Miniature Pet Embroidery</span>
+          <span data-content-key="hero.badge">${hero.badge || 'Handcrafted Miniature Pet Embroidery'}</span>
         </div>
 
         <!-- Main Title with Embroidered Style -->
         <h1 class="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-stone-900 tracking-tight leading-[1.1] mb-6">
-          Every Stitch Tells Your <br class="hidden sm:inline" />
+          <span data-content-key="hero.titleLine1">${hero.titleLine1 || 'Every Stitch Tells Your'}</span> <br class="hidden sm:inline" />
           <span class="text-terracotta italic relative inline-block">
-            Pet's True Story
+            <span data-content-key="hero.titleHighlight">${hero.titleHighlight || "Pet's True Story"}</span>
             <svg class="absolute -bottom-2 left-0 w-full h-3 text-terracotta/40" viewBox="0 0 100 12" preserveAspectRatio="none">
               <path d="M0,8 Q25,0 50,8 T100,8" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="4 2"/>
             </svg>
           </span>
         </h1>
 
-        <p class="max-w-2xl mx-auto text-base sm:text-xl text-stone-600 font-light leading-relaxed mb-10">
-          Transform your beloved furry family member into an heirloom wooden keychain or framed hoop. Hand-embroidered thread by thread on pure natural linen.
+        <p class="max-w-2xl mx-auto text-base sm:text-xl text-stone-600 font-light leading-relaxed mb-10" data-content-key="hero.subtitle">
+          ${hero.subtitle || 'Transform your beloved furry family member into an heirloom wooden keychain or framed hoop. Hand-embroidered thread by thread on pure natural linen.'}
         </p>
 
         <!-- CTA Action Buttons -->
@@ -44,11 +49,11 @@ export function renderHomePage() {
               <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
               <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg>
-            <span>Preview on 3D Keychain</span>
+            <span data-content-key="hero.ctaPrimary">${hero.ctaPrimary || 'Preview on 3D Keychain'}</span>
           </a>
 
           <a href="#portfolio" class="w-full sm:w-auto px-8 py-4 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-800 font-semibold text-base border border-linen-400/80 transition-all flex items-center justify-center gap-2">
-            <span>Explore Portfolio</span>
+            <span data-content-key="hero.ctaSecondary">${hero.ctaSecondary || 'Explore Portfolio'}</span>
             <span class="text-terracotta">→</span>
           </a>
         </div>
@@ -57,11 +62,11 @@ export function renderHomePage() {
         <div class="mt-14 max-w-sm sm:max-w-md mx-auto relative group">
           <div class="p-3 bg-white/80 backdrop-blur rounded-3xl shadow-xl border border-linen-300 transform group-hover:scale-[1.02] transition-transform duration-300">
             <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
-              <img src="/assets/keychain_ref.png" alt="Handcrafted Boxer Dog Embroidery Keychain" class="w-full h-full object-cover object-center" />
+              <img src="${hero.featuredImage || '/assets/keychain_ref.png'}" alt="Handcrafted Boxer Dog Embroidery Keychain" class="w-full h-full object-cover object-center" />
               <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/80 backdrop-blur-md rounded-xl text-white text-left flex items-center justify-between">
                 <div>
-                  <p class="font-serif font-bold text-sm">Rocky the Boxer</p>
-                  <p class="text-[11px] text-linen-300">Miniature Wooden Hoop Keychain</p>
+                  <p class="font-serif font-bold text-sm" data-content-key="hero.featuredName">${hero.featuredName || 'Rocky the Boxer'}</p>
+                  <p class="text-[11px] text-linen-300" data-content-key="hero.featuredDesc">${hero.featuredDesc || 'Miniature Wooden Hoop Keychain'}</p>
                 </div>
                 <a href="#preview" class="text-xs bg-terracotta hover:bg-terracotta-dark px-3 py-1.5 rounded-full font-medium transition">Try 3D View</a>
               </div>
@@ -195,10 +200,10 @@ export function renderHomePage() {
         <div class="text-center max-w-2xl mx-auto mb-16">
           <div class="inline-flex items-center gap-2 text-terracotta text-xs font-bold uppercase tracking-widest mb-3">
             <span class="w-2 h-2 rounded-full bg-terracotta"></span>
-            Stop Point 03 • The Commission Journey
+            <span data-content-key="craftStory.badge">${craft.badge || 'Stop Point 03 • The Commission Journey'}</span>
           </div>
-          <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight">
-            How Your Keepsake Comes to Life
+          <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight" data-content-key="craftStory.title">
+            ${craft.title || 'How Your Keepsake Comes to Life'}
           </h2>
         </div>
 
@@ -208,9 +213,9 @@ export function renderHomePage() {
             <div class="w-14 h-14 rounded-full bg-terracotta text-white font-serif font-bold text-xl flex items-center justify-center shadow-md mb-4">
               1
             </div>
-            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">Send Your Favorite Photo</h3>
-            <p class="text-stone-600 text-sm leading-relaxed">
-              Upload a clear smartphone photo in our 3D previewer. We verify eye clarity and fur lighting with you before stitching.
+            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2" data-content-key="craftStory.step1Title">${craft.step1Title || 'Send Your Favorite Photo'}</h3>
+            <p class="text-stone-600 text-sm leading-relaxed" data-content-key="craftStory.step1Desc">
+              ${craft.step1Desc || 'Upload a clear smartphone photo in our 3D previewer. We verify eye clarity and fur lighting with you before stitching.'}
             </p>
           </div>
 
@@ -219,9 +224,9 @@ export function renderHomePage() {
             <div class="w-14 h-14 rounded-full bg-wood-medium text-white font-serif font-bold text-xl flex items-center justify-center shadow-md mb-4">
               2
             </div>
-            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">Thread Palette Matching</h3>
-            <p class="text-stone-600 text-sm leading-relaxed">
-              We hand-select 20–30 DMC stranded cotton floss colors and send you a digital stitch proof for your personal approval.
+            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2" data-content-key="craftStory.step2Title">${craft.step2Title || 'Thread Palette Matching'}</h3>
+            <p class="text-stone-600 text-sm leading-relaxed" data-content-key="craftStory.step2Desc">
+              ${craft.step2Desc || 'We hand-select 20–30 DMC stranded cotton floss colors and send you a digital stitch proof for your personal approval.'}
             </p>
           </div>
 
@@ -230,9 +235,9 @@ export function renderHomePage() {
             <div class="w-14 h-14 rounded-full bg-wood-dark text-white font-serif font-bold text-xl flex items-center justify-center shadow-md mb-4">
               3
             </div>
-            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">Hand-Stitched & Shipped</h3>
-            <p class="text-stone-600 text-sm leading-relaxed">
-              Crafted in our studio with delicate micro-needlework, packaged in an eco-friendly gift box with tracked global shipping.
+            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2" data-content-key="craftStory.step3Title">${craft.step3Title || 'Hand-Stitched & Shipped'}</h3>
+            <p class="text-stone-600 text-sm leading-relaxed" data-content-key="craftStory.step3Desc">
+              ${craft.step3Desc || 'Crafted in our studio with delicate micro-needlework, packaged in an eco-friendly gift box with tracked global shipping.'}
             </p>
           </div>
         </div>

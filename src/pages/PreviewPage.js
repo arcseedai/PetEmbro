@@ -83,65 +83,60 @@ export function renderPreviewPage() {
               </div>
             </div>
 
-            <!-- Material Finish Selectors -->
-            <div class="w-full mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-linen-200/70 p-3.5 rounded-2xl border border-linen-300">
-              <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Wood Hoop Tone</label>
-                <div class="flex items-center gap-1.5" id="wood-selector">
-                  <button data-wood="oak" class="wood-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border-2 border-wood bg-white text-wood-dark shadow-sm">Warm Oak</button>
-                  <button data-wood="birch" class="wood-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border border-linen-300 hover:bg-white text-stone-700">Birch</button>
-                  <button data-wood="walnut" class="wood-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border border-linen-300 hover:bg-white text-stone-700">Dark Walnut</button>
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-1.5">Chain & Keyring Metal</label>
-                <div class="flex items-center gap-1.5" id="metal-selector">
-                  <button data-metal="silver" class="metal-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border-2 border-stone-400 bg-white text-stone-800 shadow-sm">Silver</button>
-                  <button data-metal="brass" class="metal-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border border-linen-300 hover:bg-white text-stone-700">Brass</button>
-                  <button data-metal="rosegold" class="metal-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border border-linen-300 hover:bg-white text-stone-700">Rose Gold</button>
-                </div>
-              </div>
-            </div>
           </div>
 
           <!-- RIGHT: Photo Upload & Filter Customization Studio (5 Cols) -->
           <div class="lg:col-span-5 space-y-6">
             
             <!-- Step 1: Upload / Choose Photo Card -->
-            <div class="bg-linen-100 rounded-3xl p-6 shadow-md border stitch-border-dashed">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="font-serif text-lg font-bold text-stone-900 flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-full bg-terracotta text-white text-xs flex items-center justify-center font-sans font-bold">1</span>
-                  Upload Your Pet's Photo
-                </h3>
+            <div id="step1-card" class="bg-linen-100 rounded-3xl p-5 sm:p-6 shadow-md border stitch-border-dashed transition-all duration-300">
+              
+              <!-- Collapsed summary view (active after photo is chosen so Step 2 moves up right below 3D element) -->
+              <div id="step1-collapsed" class="hidden items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs flex items-center justify-center font-sans font-bold shadow-sm">✓</span>
+                  <div>
+                    <span class="text-xs font-bold text-stone-900 block" id="step1-loaded-title">Photo Selected</span>
+                    <span class="text-[11px] text-stone-500 block">Step 2 Pan & Crop ready below</span>
+                  </div>
+                </div>
+                <button type="button" id="btn-reopen-upload" class="px-3 py-1.5 rounded-xl bg-linen-200 hover:bg-terracotta hover:text-white text-stone-700 text-xs font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                  <span>Change Photo</span>
+                  <span>↺</span>
+                </button>
               </div>
 
-              <input type="file" id="file-input" accept="image/*" class="hidden" />
+              <!-- Expanded upload controls -->
+              <div id="step1-expanded">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-serif text-lg font-bold text-stone-900 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-terracotta text-white text-xs flex items-center justify-center font-sans font-bold">1</span>
+                    Upload Your Pet's Photo
+                  </h3>
+                </div>
 
-              <button type="button" id="btn-trigger-upload" class="w-full py-3.5 px-6 rounded-2xl bg-terracotta hover:bg-terracotta-dark text-white font-bold text-sm shadow-md hover:shadow-lg transition flex items-center justify-center gap-2.5 active:scale-95 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>Click Here to Choose Photo / Camera</span>
-              </button>
+                <input type="file" id="file-input" accept="image/*" class="hidden" />
 
-              <div id="dropzone" class="mt-3 border-2 border-dashed border-linen-400 hover:border-terracotta rounded-2xl p-3 text-center cursor-pointer transition-colors bg-linen-200/40 hover:bg-linen-200/70">
-                <p class="text-xs font-semibold text-stone-600">Or drag and drop image file here</p>
-              </div>
+                <button type="button" id="btn-trigger-upload" class="w-full py-3.5 px-6 rounded-2xl bg-terracotta hover:bg-terracotta-dark text-white font-bold text-sm shadow-md hover:shadow-lg transition flex items-center justify-center gap-2.5 active:scale-95 cursor-pointer">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>Click Here to Choose Photo / Camera</span>
+                </button>
 
-              <!-- Quick Demo Samples -->
-              <div class="mt-3">
-                <p class="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-1.5">Or test with a sample pet:</p>
-                <div class="grid grid-cols-2 gap-2">
-                  <button data-sample="cat" class="sample-pet-btn text-xs py-2 px-3 rounded-xl bg-linen-200 hover:bg-linen-300 font-medium text-stone-800 border border-linen-300 text-center transition flex items-center justify-center gap-1.5">
-                    <span class="text-base">🐱</span>
-                    <span>Milo (Cat)</span>
-                  </button>
-                  <button data-sample="golden" class="sample-pet-btn text-xs py-2 px-3 rounded-xl bg-linen-200 hover:bg-linen-300 font-medium text-stone-800 border border-linen-300 text-center transition flex items-center justify-center gap-1.5">
-                    <span class="text-base">🐕</span>
-                    <span>Bella (Golden)</span>
-                  </button>
+                <!-- Quick Demo Samples -->
+                <div class="mt-3">
+                  <p class="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-1.5">Or test with a sample pet:</p>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button data-sample="cat" class="sample-pet-btn text-xs py-2 px-3 rounded-xl bg-linen-200 hover:bg-linen-300 font-medium text-stone-800 border border-linen-300 text-center transition flex items-center justify-center gap-1.5">
+                      <span class="text-base">🐱</span>
+                      <span>Milo (Cat)</span>
+                    </button>
+                    <button data-sample="golden" class="sample-pet-btn text-xs py-2 px-3 rounded-xl bg-linen-200 hover:bg-linen-300 font-medium text-stone-800 border border-linen-300 text-center transition flex items-center justify-center gap-1.5">
+                      <span class="text-base">🐕</span>
+                      <span>Bella (Golden)</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -259,9 +254,9 @@ export function renderPreviewPage() {
               </div>
 
               <!-- Order / Commission Action -->
-              <a href="#contact" class="block text-center w-full py-3.5 px-6 rounded-full bg-wood-dark hover:bg-wood text-white font-semibold text-sm transition shadow-md hover:shadow-lg">
-                Proceed to Commission with This Style →
-              </a>
+              <button type="button" id="btn-proceed-commission" class="block text-center w-full py-3.5 px-6 rounded-full bg-wood-dark hover:bg-wood text-white font-semibold text-sm transition shadow-md hover:shadow-lg active:scale-95 cursor-pointer">
+                Proceed to Commission with This Image →
+              </button>
             </div>
 
           </div>
@@ -570,35 +565,40 @@ function initPreviewLogic() {
   // Display initial settings
   syncSlidersFromSettings();
 
-  // 1. File Upload
+  // 1. File Upload & Collapsible Controls
   const fileInput = document.getElementById('file-input');
   const triggerBtn = document.getElementById('btn-trigger-upload');
-  const dropzone = document.getElementById('dropzone');
+  const btnReopen = document.getElementById('btn-reopen-upload');
+
+  function collapseStep1(petName = 'Photo Selected') {
+    const collapsed = document.getElementById('step1-collapsed');
+    const expanded = document.getElementById('step1-expanded');
+    const titleEl = document.getElementById('step1-loaded-title');
+    if (collapsed && expanded) {
+      collapsed.classList.remove('hidden');
+      collapsed.classList.add('flex');
+      expanded.classList.add('hidden');
+      if (titleEl) titleEl.textContent = `✓ ${petName}`;
+    }
+  }
+
+  function expandStep1() {
+    const collapsed = document.getElementById('step1-collapsed');
+    const expanded = document.getElementById('step1-expanded');
+    if (collapsed && expanded) {
+      collapsed.classList.add('hidden');
+      collapsed.classList.remove('flex');
+      expanded.classList.remove('hidden');
+    }
+  }
 
   triggerBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     fileInput?.click();
   });
 
-  dropzone?.addEventListener('click', () => {
-    fileInput?.click();
-  });
-
-  dropzone?.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.classList.add('border-terracotta', 'bg-terracotta/10');
-  });
-
-  dropzone?.addEventListener('dragleave', () => {
-    dropzone.classList.remove('border-terracotta', 'bg-terracotta/10');
-  });
-
-  dropzone?.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('border-terracotta', 'bg-terracotta/10');
-    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-      loadFile(e.dataTransfer.files[0]);
-    }
+  btnReopen?.addEventListener('click', () => {
+    expandStep1();
   });
 
   fileInput?.addEventListener('change', (e) => {
@@ -616,6 +616,7 @@ function initPreviewLogic() {
         currentCutoutImage = null;
         currentMaskCanvas = null;
         document.getElementById('refine-cutout-container')?.classList.add('hidden');
+        collapseStep1(file.name ? file.name.substring(0, 20) : 'Photo Uploaded');
         applyFilterTo3D();
       };
       img.src = event.target.result;
@@ -630,6 +631,7 @@ function initPreviewLogic() {
       currentCutoutImage = null;
       currentMaskCanvas = null;
       document.getElementById('refine-cutout-container')?.classList.add('hidden');
+      collapseStep1(sample === 'cat' ? 'Milo (Cat)' : 'Bella (Golden)');
       if (sample === 'boxer') {
         const img = new Image();
         img.crossOrigin = 'anonymous';
@@ -804,6 +806,21 @@ function initPreviewLogic() {
     link.download = 'PetEmbro-3D-Keepsake-Preview.png';
     link.href = dataUrl;
     link.click();
+  });
+
+  // Proceed to Commission with This Image button handler
+  document.getElementById('btn-proceed-commission')?.addEventListener('click', () => {
+    try {
+      const dataUrl = viewer.captureSnapshot();
+      if (dataUrl) {
+        sessionStorage.setItem('petembro_attached_preview', dataUrl);
+      }
+    } catch (e) {
+      console.warn('Could not capture snapshot for commission form', e);
+    }
+    const styleTitle = styleDescriptions[currentSettings.filterMode]?.title || 'Silk Thread-Painting';
+    sessionStorage.setItem('petembro_attached_style', styleTitle);
+    window.location.hash = '#contact';
   });
 
   // -------------------------------------------------------------

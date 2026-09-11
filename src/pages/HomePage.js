@@ -1,6 +1,7 @@
 // Home / Index Page with Parallax Scrolling & Stop Points
 import { getSiteContent, getRandomFeaturedArtwork, getCommissionCategories } from '../services/contentStore.js';
 import { sendInquiry } from '../services/formService.js';
+import { downscaleImage, formatFileSize } from '../utils/imageDownscaler.js';
 
 export function renderHomePage() {
   const root = document.getElementById('app-root');
@@ -347,6 +348,45 @@ export function renderHomePage() {
               </div>
             </div>
 
+              <!-- Reference Pet Photos (Up to 3 with Auto-Downscaler) -->
+              <div class="p-4 rounded-2xl bg-linen-200/70 border border-linen-300 space-y-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <label class="block text-xs font-bold text-stone-800 uppercase tracking-wider">
+                      Reference Pet Photos (Up to 3)
+                    </label>
+                    <p class="text-[11px] text-stone-500">
+                      High-resolution photos are automatically downscaled for fast delivery.
+                    </p>
+                  </div>
+                  <span id="home-photo-count-badge" class="text-xs font-semibold text-stone-600 bg-white px-2.5 py-1 rounded-lg border border-linen-300 shadow-xs">
+                    0 / 3 added
+                  </span>
+                </div>
+
+                <input type="file" id="home-photo-upload" accept="image/jpeg,image/png,image/webp,image/heic,image/*" multiple class="hidden" />
+
+                <!-- Add Photos Trigger Button -->
+                <button type="button" id="btn-trigger-home-photos" class="w-full py-3 px-4 rounded-xl border-2 border-dashed border-linen-400 hover:border-terracotta bg-white hover:bg-linen-100 text-stone-700 font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95">
+                  <svg class="w-4 h-4 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>Click to Choose Pet Photo(s) / Camera</span>
+                </button>
+
+                <!-- Processing Indicator -->
+                <div id="home-photos-optimizing-indicator" class="hidden py-2 px-3 rounded-xl bg-linen-300/60 text-stone-700 text-xs flex items-center gap-2">
+                  <svg class="animate-spin h-3.5 w-3.5 text-terracotta" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span id="home-optimizing-text">Optimizing images...</span>
+                </div>
+
+                <!-- Thumbnails Grid -->
+                <div id="home-photos-thumbnail-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 empty:hidden"></div>
+              </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
                 <span data-content-key="inquiry.detailsLabel">${inquiry.detailsLabel || 'Tell Us About Your Pet & Special Details'}</span>
@@ -412,6 +452,95 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
   const submitBtn = form?.querySelector('button[type="submit"]');
   const originalBtnContent = submitBtn?.innerHTML || 'Send Commission Inquiry';
 
+  let homeUploadedPhotos = [];
+  const homePhotoInput = document.getElementById('home-photo-upload');
+  const btnTriggerHomePhotos = document.getElementById('btn-trigger-home-photos');
+  const homeGrid = document.getElementById('home-photos-thumbnail-grid');
+  const homeCountBadge = document.getElementById('home-photo-count-badge');
+  const homeIndicator = document.getElementById('home-photos-optimizing-indicator');
+  const homeOptText = document.getElementById('home-optimizing-text');
+
+  btnTriggerHomePhotos?.addEventListener('click', () => {
+    homePhotoInput?.click();
+  });
+
+  function renderHomeThumbnails() {
+    if (!homeGrid) return;
+    if (homeCountBadge) {
+      homeCountBadge.textContent = `${homeUploadedPhotos.length} / 3 added`;
+    }
+    if (btnTriggerHomePhotos) {
+      if (homeUploadedPhotos.length >= 3) {
+        btnTriggerHomePhotos.classList.add('hidden');
+      } else {
+        btnTriggerHomePhotos.classList.remove('hidden');
+      }
+    }
+
+    homeGrid.innerHTML = homeUploadedPhotos.map((item, idx) => `
+      <div class="relative group p-2 rounded-xl bg-white border border-linen-300 flex items-center gap-2.5 shadow-sm">
+        <img src="${item.previewUrl}" alt="Pet Reference" class="w-12 h-12 rounded-lg object-cover border border-linen-200 flex-shrink-0" />
+        <div class="flex-1 min-w-0 pr-6">
+          <p class="text-[11px] font-bold text-stone-800 truncate" title="${item.fileName}">${item.fileName}</p>
+          <p class="text-[10px] text-emerald-700 font-medium">
+            ${formatFileSize(item.downscaledSize)}
+            <span class="text-stone-400 font-normal">(${formatFileSize(item.originalSize)})</span>
+          </p>
+        </div>
+        <button type="button" data-index="${idx}" class="btn-remove-home-photo absolute top-2 right-2 w-5 h-5 rounded-full bg-linen-200 hover:bg-rose-500 hover:text-white text-stone-600 text-xs font-bold flex items-center justify-center transition" title="Remove this photo">
+          ✕
+        </button>
+      </div>
+    `).join('');
+
+    homeGrid.querySelectorAll('.btn-remove-home-photo').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.index, 10);
+        homeUploadedPhotos.splice(idx, 1);
+        renderHomeThumbnails();
+      });
+    });
+  }
+
+  homePhotoInput?.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const remaining = 3 - homeUploadedPhotos.length;
+    if (remaining <= 0) {
+      alert('You can upload a maximum of 3 reference photos.');
+      homePhotoInput.value = '';
+      return;
+    }
+
+    const filesToProcess = files.slice(0, remaining);
+    if (homeIndicator) homeIndicator.classList.remove('hidden');
+
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const file = filesToProcess[i];
+      if (homeOptText) homeOptText.textContent = `Optimizing photo ${i + 1} of ${filesToProcess.length}...`;
+      try {
+        const optimized = await downscaleImage(file, 1600, 1600, 0.82);
+        homeUploadedPhotos.push(optimized);
+      } catch (err) {
+        console.warn('Could not downscale photo, using original:', err);
+        homeUploadedPhotos.push({
+          file: file,
+          blob: file,
+          previewUrl: URL.createObjectURL(file),
+          fileName: file.name,
+          originalSize: file.size,
+          downscaledSize: file.size
+        });
+      }
+    }
+
+    if (homeIndicator) homeIndicator.classList.add('hidden');
+    homePhotoInput.value = '';
+    renderHomeThumbnails();
+  });
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(form);
@@ -426,10 +555,16 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span>Sending Inquiry...</span>
+          <span>Sending Inquiry & Photos...</span>
         </span>
       `;
     }
+
+    // Attach reference photos
+    homeUploadedPhotos.forEach((photo, idx) => {
+      formData.append('attachment', photo.file, photo.fileName);
+      formData.append(`attachment_${idx + 1}`, photo.file, photo.fileName);
+    });
 
     const result = await sendInquiry(formData, 'Homepage Commission Inquiry');
 
@@ -439,8 +574,10 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
     }
 
     if (result.success) {
-      showToast(`✓ Thank you ${name}! Your inquiry for ${pet} has been delivered to our inbox. We will reply within 24 hours.`);
+      showToast(`✓ Thank you ${name}! Your inquiry and photos for ${pet} have been delivered. We will reply within 24 hours.`);
       form.reset();
+      homeUploadedPhotos = [];
+      renderHomeThumbnails();
     } else {
       showToast(`⚠️ Could not send inquiry: ${result.message || 'Please email us directly'}`);
     }

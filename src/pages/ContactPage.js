@@ -2,6 +2,7 @@
 import { getSiteContent, getCommissionCategories, getSocialLinks } from '../services/contentStore.js';
 import { getSocialIconSvg } from '../utils/socialIcons.js';
 import { sendInquiry } from '../services/formService.js';
+import { downscaleImage, dataUrlToFile, formatFileSize } from '../utils/imageDownscaler.js';
 
 export function renderContactPage() {
   const root = document.getElementById('app-root');
@@ -13,6 +14,10 @@ export function renderContactPage() {
   const inquiry = content.inquiry || {};
   const categories = getCommissionCategories();
   const socialLinks = getSocialLinks();
+
+  const attachedPreviewThumb = sessionStorage.getItem('petembro_attached_preview') || '';
+  const attachedPreviewStyle = sessionStorage.getItem('petembro_attached_style') || 'Silk Thread-Painting';
+  const hasAttachedPreview = Boolean(attachedPreviewThumb);
 
   root.innerHTML = `
     <div class="min-h-screen bg-linen-weave py-8 sm:py-16">
@@ -110,6 +115,22 @@ export function renderContactPage() {
             </h3>
 
             <form id="contact-full-form" class="space-y-5">
+              ${hasAttachedPreview ? `
+                <div id="attached-preview-banner" class="p-4 rounded-2xl bg-linen-200/90 border-2 border-dashed border-terracotta/50 flex items-center gap-4">
+                  <img id="attached-preview-thumb" src="${attachedPreviewThumb}" alt="Customized Keepsake Preview" class="w-16 h-16 rounded-xl object-cover border border-linen-300 shadow-sm bg-white flex-shrink-0" />
+                  <div class="flex-1 min-w-0">
+                    <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-terracotta/15 text-terracotta text-[10px] font-bold uppercase tracking-wider mb-0.5">
+                      <span>✨</span> 3D Preview Image Attached
+                    </div>
+                    <p class="text-xs font-bold text-stone-900 truncate">Your Customized Keepsake Design</p>
+                    <p class="text-[11px] text-stone-600 truncate">Style: ${attachedPreviewStyle}</p>
+                  </div>
+                  <button type="button" id="btn-remove-preview-attachment" class="w-8 h-8 rounded-full bg-white hover:bg-rose-50 text-stone-400 hover:text-rose-600 flex items-center justify-center text-sm font-bold border border-linen-300 shadow-sm transition" title="Remove attached preview">
+                    ✕
+                  </button>
+                </div>
+              ` : ''}
+
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
@@ -149,6 +170,45 @@ export function renderContactPage() {
                 </div>
               </div>
 
+              <!-- Photo Attachments Section (Up to 3 Photos with Auto-Downscaler) -->
+              <div class="p-4 rounded-2xl bg-linen-200/70 border border-linen-300 space-y-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <label class="block text-xs font-bold text-stone-800 uppercase tracking-wider">
+                      Reference Pet Photos (Up to 3)
+                    </label>
+                    <p class="text-[11px] text-stone-500">
+                      Large camera photos are automatically downscaled for fast delivery.
+                    </p>
+                  </div>
+                  <span id="photo-count-badge" class="text-xs font-semibold text-stone-600 bg-white px-2.5 py-1 rounded-lg border border-linen-300 shadow-xs">
+                    0 / 3 added
+                  </span>
+                </div>
+
+                <input type="file" id="contact-photo-upload" accept="image/jpeg,image/png,image/webp,image/heic,image/*" multiple class="hidden" />
+
+                <!-- Add Photos Trigger Button -->
+                <button type="button" id="btn-trigger-contact-photos" class="w-full py-3 px-4 rounded-xl border-2 border-dashed border-linen-400 hover:border-terracotta bg-white hover:bg-linen-100 text-stone-700 font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95">
+                  <svg class="w-4 h-4 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>Click to Choose Pet Photo(s) / Camera</span>
+                </button>
+
+                <!-- Processing / Downscaler Indicator -->
+                <div id="photos-optimizing-indicator" class="hidden py-2 px-3 rounded-xl bg-linen-300/60 text-stone-700 text-xs flex items-center gap-2">
+                  <svg class="animate-spin h-3.5 w-3.5 text-terracotta" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span id="optimizing-text">Optimizing images...</span>
+                </div>
+
+                <!-- Thumbnails Grid -->
+                <div id="photos-thumbnail-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 empty:hidden"></div>
+              </div>
+
               <div>
                 <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                   <span data-content-key="inquiry.detailsLabel">${inquiry.detailsLabel || 'Message / Inscription Notes'}</span>
@@ -181,6 +241,113 @@ function bindContactEvents() {
   const submitBtn = form?.querySelector('button[type="submit"]');
   const originalBtnContent = submitBtn?.innerHTML || 'Submit Commission';
 
+  let uploadedPhotos = []; // array of { file, blob, previewUrl, fileName, originalSize, downscaledSize }
+  let attachedPreviewDataUrl = sessionStorage.getItem('petembro_attached_preview') || null;
+
+  // Remove attached 3D design preview handler
+  document.getElementById('btn-remove-preview-attachment')?.addEventListener('click', () => {
+    sessionStorage.removeItem('petembro_attached_preview');
+    sessionStorage.removeItem('petembro_attached_style');
+    attachedPreviewDataUrl = null;
+    const banner = document.getElementById('attached-preview-banner');
+    if (banner) {
+      banner.style.opacity = '0';
+      banner.style.transition = 'opacity 0.2s ease';
+      setTimeout(() => banner.remove(), 200);
+    }
+  });
+
+  // Reference Photos Upload & Auto-Downscaler
+  const photoInput = document.getElementById('contact-photo-upload');
+  const triggerBtn = document.getElementById('btn-trigger-contact-photos');
+  const grid = document.getElementById('photos-thumbnail-grid');
+  const countBadge = document.getElementById('photo-count-badge');
+  const indicator = document.getElementById('photos-optimizing-indicator');
+  const optText = document.getElementById('optimizing-text');
+
+  triggerBtn?.addEventListener('click', () => {
+    photoInput?.click();
+  });
+
+  function renderThumbnails() {
+    if (!grid) return;
+
+    if (countBadge) {
+      countBadge.textContent = `${uploadedPhotos.length} / 3 added`;
+    }
+
+    if (triggerBtn) {
+      if (uploadedPhotos.length >= 3) {
+        triggerBtn.classList.add('hidden');
+      } else {
+        triggerBtn.classList.remove('hidden');
+      }
+    }
+
+    grid.innerHTML = uploadedPhotos.map((item, idx) => `
+      <div class="relative group p-2 rounded-xl bg-white border border-linen-300 flex items-center gap-2.5 shadow-sm">
+        <img src="${item.previewUrl}" alt="Pet Reference" class="w-12 h-12 rounded-lg object-cover border border-linen-200 flex-shrink-0" />
+        <div class="flex-1 min-w-0 pr-6">
+          <p class="text-[11px] font-bold text-stone-800 truncate" title="${item.fileName}">${item.fileName}</p>
+          <p class="text-[10px] text-emerald-700 font-medium">
+            ${formatFileSize(item.downscaledSize)}
+            <span class="text-stone-400 font-normal">(${formatFileSize(item.originalSize)})</span>
+          </p>
+        </div>
+        <button type="button" data-index="${idx}" class="btn-remove-photo absolute top-2 right-2 w-5 h-5 rounded-full bg-linen-200 hover:bg-rose-500 hover:text-white text-stone-600 text-xs font-bold flex items-center justify-center transition" title="Remove this photo">
+          ✕
+        </button>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.btn-remove-photo').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.index, 10);
+        uploadedPhotos.splice(idx, 1);
+        renderThumbnails();
+      });
+    });
+  }
+
+  photoInput?.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const remaining = 3 - uploadedPhotos.length;
+    if (remaining <= 0) {
+      alert('You can upload a maximum of 3 reference photos.');
+      photoInput.value = '';
+      return;
+    }
+
+    const filesToProcess = files.slice(0, remaining);
+    if (indicator) indicator.classList.remove('hidden');
+
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const file = filesToProcess[i];
+      if (optText) optText.textContent = `Optimizing photo ${i + 1} of ${filesToProcess.length}...`;
+      try {
+        const optimized = await downscaleImage(file, 1600, 1600, 0.82);
+        uploadedPhotos.push(optimized);
+      } catch (err) {
+        console.warn('Could not downscale image, using original:', err);
+        uploadedPhotos.push({
+          file: file,
+          blob: file,
+          previewUrl: URL.createObjectURL(file),
+          fileName: file.name,
+          originalSize: file.size,
+          downscaledSize: file.size
+        });
+      }
+    }
+
+    if (indicator) indicator.classList.add('hidden');
+    photoInput.value = '';
+    renderThumbnails();
+  });
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(form);
@@ -194,14 +361,35 @@ function bindContactEvents() {
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span>Sending Inquiry...</span>
+          <span>Sending Inquiry & Photos...</span>
         </span>
       `;
     }
 
+    // Attach 3D keepsake preview if customer proceeded from 3D customizer
+    if (attachedPreviewDataUrl) {
+      try {
+        const previewFile = dataUrlToFile(attachedPreviewDataUrl, 'custom_3d_keepsake_preview.jpg');
+        formData.append('attachment', previewFile, previewFile.name);
+        formData.append('attachment_preview', previewFile, previewFile.name);
+      } catch (err) {
+        console.warn('Could not attach preview image:', err);
+      }
+    }
+
+    // Attach all downscaled reference photos
+    uploadedPhotos.forEach((photo, idx) => {
+      formData.append('attachment', photo.file, photo.fileName);
+      formData.append(`attachment_${idx + 1}`, photo.file, photo.fileName);
+    });
+
     const result = await sendInquiry(formData, 'Contact Page Inquiry');
 
     if (result.success) {
+      sessionStorage.removeItem('petembro_attached_preview');
+      sessionStorage.removeItem('petembro_attached_style');
+      uploadedPhotos = [];
+
       form.innerHTML = `
         <div class="p-8 rounded-3xl bg-linen-200/80 border border-linen-300 text-center space-y-4">
           <div class="w-14 h-14 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl font-bold shadow-sm">
@@ -209,7 +397,7 @@ function bindContactEvents() {
           </div>
           <h4 class="font-serif text-2xl font-bold text-stone-900">Inquiry Received, ${name}!</h4>
           <p class="text-stone-600 text-sm max-w-md mx-auto leading-relaxed">
-            Your commission details have been sent directly to our email inbox. ${getSiteContent().about?.artistName || 'Iryna'} will review your pet information and reply within 24 hours.
+            Your commission details and photos have been sent directly to our email inbox. ${getSiteContent().about?.artistName || 'Iryna'} will review your pet photos and reply within 24 hours.
           </p>
           <div class="pt-2">
             <button type="button" id="btn-reset-contact-form" class="px-6 py-2.5 rounded-full bg-wood-dark hover:bg-wood text-white font-semibold text-xs transition">

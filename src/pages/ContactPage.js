@@ -115,21 +115,6 @@ export function renderContactPage() {
             </h3>
 
             <form id="contact-full-form" class="space-y-5">
-              ${hasAttachedPreview ? `
-                <div id="attached-preview-banner" class="p-4 rounded-2xl bg-linen-200/90 border-2 border-dashed border-terracotta/50 flex items-center gap-4">
-                  <img id="attached-preview-thumb" src="${attachedPreviewThumb}" alt="Customized Keepsake Preview" class="w-16 h-16 rounded-xl object-cover border border-linen-300 shadow-sm bg-white flex-shrink-0" />
-                  <div class="flex-1 min-w-0">
-                    <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-terracotta/15 text-terracotta text-[10px] font-bold uppercase tracking-wider mb-0.5">
-                      <span>✨</span> 3D Preview Image Attached
-                    </div>
-                    <p class="text-xs font-bold text-stone-900 truncate">Your Customized Keepsake Design</p>
-                    <p class="text-[11px] text-stone-600 truncate">Style: ${attachedPreviewStyle}</p>
-                  </div>
-                  <button type="button" id="btn-remove-preview-attachment" class="w-8 h-8 rounded-full bg-white hover:bg-rose-50 text-stone-400 hover:text-rose-600 flex items-center justify-center text-sm font-bold border border-linen-300 shadow-sm transition" title="Remove attached preview">
-                    ✕
-                  </button>
-                </div>
-              ` : ''}
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -193,7 +178,7 @@ export function renderContactPage() {
                   <svg class="w-4 h-4 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span>Click to Choose Pet Photo(s) / Camera</span>
+                  <span>Click to Choose Pet Photo(s)</span>
                 </button>
 
                 <!-- Processing / Downscaler Indicator -->
@@ -241,21 +226,27 @@ function bindContactEvents() {
   const submitBtn = form?.querySelector('button[type="submit"]');
   const originalBtnContent = submitBtn?.innerHTML || 'Submit Commission';
 
-  let uploadedPhotos = []; // array of { file, blob, previewUrl, fileName, originalSize, downscaledSize }
-  let attachedPreviewDataUrl = sessionStorage.getItem('petembro_attached_preview') || null;
+  let uploadedPhotos = []; // array of { file, blob, previewUrl, fileName, originalSize, downscaledSize, is3DPreview }
+  const attachedPreviewDataUrl = sessionStorage.getItem('petembro_attached_preview') || null;
+  const attachedPreviewStyle = sessionStorage.getItem('petembro_attached_style') || 'Silk Thread-Painting';
 
-  // Remove attached 3D design preview handler
-  document.getElementById('btn-remove-preview-attachment')?.addEventListener('click', () => {
-    sessionStorage.removeItem('petembro_attached_preview');
-    sessionStorage.removeItem('petembro_attached_style');
-    attachedPreviewDataUrl = null;
-    const banner = document.getElementById('attached-preview-banner');
-    if (banner) {
-      banner.style.opacity = '0';
-      banner.style.transition = 'opacity 0.2s ease';
-      setTimeout(() => banner.remove(), 200);
+  // If arriving from 3D customizer, initialize the 3D design as Photo 1 of 3
+  if (attachedPreviewDataUrl) {
+    try {
+      const previewFile = dataUrlToFile(attachedPreviewDataUrl, 'custom_3d_keepsake_preview.jpg');
+      uploadedPhotos.push({
+        file: previewFile,
+        blob: previewFile,
+        previewUrl: attachedPreviewDataUrl,
+        fileName: `3D Keepsake (${attachedPreviewStyle}).jpg`,
+        originalSize: previewFile.size,
+        downscaledSize: previewFile.size,
+        is3DPreview: true
+      });
+    } catch (e) {
+      console.warn('Could not initialize 3D preview file:', e);
     }
-  });
+  }
 
   // Reference Photos Upload & Auto-Downscaler
   const photoInput = document.getElementById('contact-photo-upload');
@@ -288,13 +279,16 @@ function bindContactEvents() {
       <div class="relative group p-2 rounded-xl bg-white border border-linen-300 flex items-center gap-2.5 shadow-sm">
         <img src="${item.previewUrl}" alt="Pet Reference" class="w-12 h-12 rounded-lg object-cover border border-linen-200 flex-shrink-0" />
         <div class="flex-1 min-w-0 pr-6">
-          <p class="text-[11px] font-bold text-stone-800 truncate" title="${item.fileName}">${item.fileName}</p>
+          <div class="flex items-center gap-1.5">
+            <p class="text-[11px] font-bold text-stone-800 truncate" title="${item.fileName}">${item.fileName}</p>
+            ${item.is3DPreview ? '<span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta flex-shrink-0">3D Preview</span>' : ''}
+          </div>
           <p class="text-[10px] text-emerald-700 font-medium">
             ${formatFileSize(item.downscaledSize)}
             <span class="text-stone-400 font-normal">(${formatFileSize(item.originalSize)})</span>
           </p>
         </div>
-        <button type="button" data-index="${idx}" class="btn-remove-photo absolute top-2 right-2 w-5 h-5 rounded-full bg-linen-200 hover:bg-rose-500 hover:text-white text-stone-600 text-xs font-bold flex items-center justify-center transition" title="Remove this photo">
+        <button type="button" data-index="${idx}" class="btn-remove-photo absolute top-2 right-2 w-5 h-5 rounded-full bg-linen-200 hover:bg-rose-500 hover:text-white text-stone-600 text-xs font-bold flex items-center justify-center transition cursor-pointer" title="Remove this photo">
           ✕
         </button>
       </div>
@@ -304,11 +298,19 @@ function bindContactEvents() {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const idx = parseInt(btn.dataset.index, 10);
+        const removed = uploadedPhotos[idx];
+        if (removed && removed.is3DPreview) {
+          sessionStorage.removeItem('petembro_attached_preview');
+          sessionStorage.removeItem('petembro_attached_style');
+        }
         uploadedPhotos.splice(idx, 1);
         renderThumbnails();
       });
     });
   }
+
+  // Render initial items (e.g. 3D preview if present)
+  renderThumbnails();
 
   photoInput?.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files || []);
@@ -366,18 +368,7 @@ function bindContactEvents() {
       `;
     }
 
-    // Attach 3D keepsake preview if customer proceeded from 3D customizer
-    if (attachedPreviewDataUrl) {
-      try {
-        const previewFile = dataUrlToFile(attachedPreviewDataUrl, 'custom_3d_keepsake_preview.jpg');
-        formData.append('attachment', previewFile, previewFile.name);
-        formData.append('attachment_preview', previewFile, previewFile.name);
-      } catch (err) {
-        console.warn('Could not attach preview image:', err);
-      }
-    }
-
-    // Attach all downscaled reference photos
+    // Attach all photos (including 3D preview if present)
     uploadedPhotos.forEach((photo, idx) => {
       formData.append('attachment', photo.file, photo.fileName);
       formData.append(`attachment_${idx + 1}`, photo.file, photo.fileName);

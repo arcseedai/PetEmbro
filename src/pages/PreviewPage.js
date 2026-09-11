@@ -4,6 +4,7 @@
 import { Keychain3DViewer } from '../components/Keychain3D.js';
 import { EmbroideryFilterEngine } from '../components/EmbroideryFilter.js';
 import { getAiSegmentedData, createCutoutFromMask } from '../services/aiBackgroundRemover.js';
+import { downscaleImage } from '../utils/imageDownscaler.js';
 
 let activeViewer = null;
 
@@ -121,7 +122,7 @@ export function renderPreviewPage() {
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span>Click Here to Choose Photo / Camera</span>
+                  <span>Click Here to Choose Pet Photo</span>
                 </button>
 
                 <!-- Quick Demo Samples -->
@@ -601,6 +602,8 @@ function initPreviewLogic() {
     expandStep1();
   });
 
+  let hasCustomPhotoUploaded = false;
+
   fileInput?.addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
       loadFile(e.target.files[0]);
@@ -608,26 +611,48 @@ function initPreviewLogic() {
   });
 
   function loadFile(file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
+    showAiLoading(true);
+    updateAiProgress('Optimizing & preparing photo...', 15);
+
+    downscaleImage(file, 1600, 1600, 0.85).then(optimized => {
       const img = new Image();
       img.onload = () => {
         currentImage = img;
         currentCutoutImage = null;
         currentMaskCanvas = null;
+        hasCustomPhotoUploaded = true;
         document.getElementById('refine-cutout-container')?.classList.add('hidden');
-        collapseStep1(file.name ? file.name.substring(0, 20) : 'Photo Uploaded');
+        collapseStep1(optimized.fileName ? optimized.fileName.substring(0, 20) : 'Photo Uploaded');
+        showAiLoading(false);
         applyFilterTo3D();
       };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
+      img.src = optimized.previewUrl;
+    }).catch(err => {
+      console.warn('Downscaler error, fallback to raw reader:', err);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          currentImage = img;
+          currentCutoutImage = null;
+          currentMaskCanvas = null;
+          hasCustomPhotoUploaded = true;
+          document.getElementById('refine-cutout-container')?.classList.add('hidden');
+          collapseStep1(file.name ? file.name.substring(0, 20) : 'Photo Uploaded');
+          showAiLoading(false);
+          applyFilterTo3D();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   // 2. Demo Sample Pets
   document.querySelectorAll('.sample-pet-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const sample = btn.dataset.sample;
+      hasCustomPhotoUploaded = true;
       currentCutoutImage = null;
       currentMaskCanvas = null;
       document.getElementById('refine-cutout-container')?.classList.add('hidden');
@@ -810,6 +835,18 @@ function initPreviewLogic() {
 
   // Proceed to Commission with This Image button handler
   document.getElementById('btn-proceed-commission')?.addEventListener('click', () => {
+    if (!hasCustomPhotoUploaded) {
+      alert("Please upload your pet's photo in Step 1 first to customize your design!");
+      expandStep1();
+      const step1Card = document.getElementById('step1-card');
+      if (step1Card) {
+        step1Card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        step1Card.classList.add('ring-4', 'ring-terracotta');
+        setTimeout(() => step1Card.classList.remove('ring-4', 'ring-terracotta'), 2500);
+      }
+      return;
+    }
+
     try {
       const dataUrl = viewer.captureSnapshot();
       if (dataUrl) {

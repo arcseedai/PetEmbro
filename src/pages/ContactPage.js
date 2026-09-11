@@ -279,10 +279,7 @@ function bindContactEvents() {
       <div class="relative group p-2 rounded-xl bg-white border border-linen-300 flex items-center gap-2.5 shadow-sm">
         <img src="${item.previewUrl}" alt="Pet Reference" class="w-12 h-12 rounded-lg object-cover border border-linen-200 flex-shrink-0" />
         <div class="flex-1 min-w-0 pr-6">
-          <div class="flex items-center gap-1.5">
-            <p class="text-[11px] font-bold text-stone-800 truncate" title="${item.fileName}">${item.fileName}</p>
-            ${item.is3DPreview ? '<span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-terracotta/15 text-terracotta flex-shrink-0">3D Preview</span>' : ''}
-          </div>
+          <p class="text-[11px] font-bold text-stone-800 truncate" title="${item.fileName}">${item.fileName}</p>
           <p class="text-[10px] text-emerald-700 font-medium">
             ${formatFileSize(item.downscaledSize)}
             <span class="text-stone-400 font-normal">(${formatFileSize(item.originalSize)})</span>

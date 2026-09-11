@@ -107,10 +107,6 @@ export function renderHomePage() {
                     <div class="p-3 sm:p-3.5 bg-white/95 backdrop-blur rounded-3xl shadow-xl hover:shadow-2xl border border-linen-300 transition-transform duration-300 hover:scale-[1.02]">
                       <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
                         <img src="${item.image || './assets/keychain_ref.png'}" alt="${itemTitle}" class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-500" loading="lazy" />
-                        <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/90 backdrop-blur-md rounded-2xl text-white shadow-lg">
-                          <p class="font-serif font-bold text-sm sm:text-base text-amber-100 truncate">${itemTitle}</p>
-                          <p class="text-[11px] sm:text-xs text-linen-300 truncate mt-0.5">${itemSub}</p>
-                        </div>
                       </div>
                     </div>
                   </div>

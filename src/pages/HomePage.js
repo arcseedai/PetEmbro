@@ -8,6 +8,8 @@ export function renderHomePage() {
   const content = getSiteContent();
   const hero = content.hero || {};
   const craft = content.craftStory || {};
+  const sp1 = content.stopPoint1 || {};
+  const sp2 = content.stopPoint2 || {};
 
   root.innerHTML = `
     <!-- 1. HERO SECTION -->
@@ -62,7 +64,7 @@ export function renderHomePage() {
         <div class="mt-14 max-w-sm sm:max-w-md mx-auto relative group">
           <div class="p-3 bg-white/80 backdrop-blur rounded-3xl shadow-xl border border-linen-300 transform group-hover:scale-[1.02] transition-transform duration-300">
             <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
-              <img src="${hero.featuredImage || '/assets/keychain_ref.png'}" alt="Handcrafted Boxer Dog Embroidery Keychain" class="w-full h-full object-cover object-center" />
+              <img src="${hero.featuredImage || '/assets/keychain_ref.png'}" data-image-key="hero.featuredImage" alt="Handcrafted Boxer Dog Embroidery Keychain" class="w-full h-full object-cover object-center" />
               <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/80 backdrop-blur-md rounded-xl text-white text-left flex items-center justify-between">
                 <div>
                   <p class="font-serif font-bold text-sm" data-content-key="hero.featuredName">${hero.featuredName || 'Rocky the Boxer'}</p>
@@ -90,41 +92,40 @@ export function renderHomePage() {
           <div class="space-y-6">
             <div class="inline-flex items-center gap-2 text-terracotta-light text-xs font-bold uppercase tracking-widest">
               <span class="w-2 h-2 rounded-full bg-terracotta"></span>
-              Stop Point 01 • Master Craftsmanship
+              <span data-content-key="stopPoint1.badge">${sp1.badge || 'Stop Point 01 • Master Craftsmanship'}</span>
             </div>
             <h2 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-              Single-Strand Precision, <br />
-              <span class="text-terracotta-light italic">Thread by Patient Thread</span>
+              <span data-content-key="stopPoint1.title">${sp1.title || 'Single-Strand Precision,'}</span> <br />
+              <span class="text-terracotta-light italic" data-content-key="stopPoint1.titleHighlight">${sp1.titleHighlight || 'Thread by Patient Thread'}</span>
             </h2>
-            <p class="text-stone-300 text-base sm:text-lg leading-relaxed font-light">
-              Unlike machine embroidery, each PetEmbro piece uses single strands of fine DMC cotton thread. We micro-layer up to 30 distinct hues to recreate the authentic texture of your pet's fur, the wet shine of their nose, and that unmistakable sparkle in their eyes.
+            <p class="text-stone-300 text-base sm:text-lg leading-relaxed font-light" data-content-key="stopPoint1.description">
+              ${sp1.description || "Unlike machine embroidery, each PetEmbro piece uses single strands of fine DMC cotton thread. We micro-layer up to 30 distinct hues to recreate the authentic texture of your pet's fur, the wet shine of their nose, and that unmistakable sparkle in their eyes."}
             </p>
             <div class="grid grid-cols-2 gap-6 pt-4 border-t border-stone-800">
               <div>
-                <p class="font-serif text-3xl sm:text-4xl font-bold text-wood-light">14+ Hrs</p>
-                <p class="text-xs text-stone-400 mt-1 uppercase tracking-wider">Per Miniature Portrait</p>
+                <p class="font-serif text-3xl sm:text-4xl font-bold text-wood-light" data-content-key="stopPoint1.stat1Number">${sp1.stat1Number || '14+ Hrs'}</p>
+                <p class="text-xs text-stone-400 mt-1 uppercase tracking-wider" data-content-key="stopPoint1.stat1Label">${sp1.stat1Label || 'Per Miniature Portrait'}</p>
               </div>
               <div>
-                <p class="font-serif text-3xl sm:text-4xl font-bold text-terracotta-light">450+</p>
-                <p class="text-xs text-stone-400 mt-1 uppercase tracking-wider">DMC Floss Color Shades</p>
+                <p class="font-serif text-3xl sm:text-4xl font-bold text-terracotta-light" data-content-key="stopPoint1.stat2Number">${sp1.stat2Number || '450+'}</p>
+                <p class="text-xs text-stone-400 mt-1 uppercase tracking-wider" data-content-key="stopPoint1.stat2Label">${sp1.stat2Label || 'DMC Floss Color Shades'}</p>
               </div>
             </div>
             <div>
               <a href="#about" class="inline-flex items-center gap-2 text-sm font-semibold text-terracotta-light hover:text-white transition">
-                <span>Read more about our materials & process</span>
-                <span>→</span>
+                <span data-content-key="stopPoint1.linkText">${sp1.linkText || 'Read more about our materials & process →'}</span>
               </a>
             </div>
           </div>
 
           <div class="relative">
-            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-stone-800 p-2 bg-stone-800/60">
-              <img src="/assets/keychain_ref.png" alt="Close-up hand embroidery details" class="w-full rounded-2xl object-cover" />
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-stone-800 p-2 bg-stone-800/60 group">
+              <img src="${sp1.image || '/assets/keychain_ref.png'}" data-image-key="stopPoint1.image" alt="Close-up hand embroidery details" class="w-full rounded-2xl object-cover" />
             </div>
             <!-- Floating quote card -->
             <div class="absolute -bottom-6 -left-6 sm:-bottom-8 sm:-left-8 bg-linen-100 text-stone-800 p-5 rounded-2xl shadow-xl max-w-xs border border-linen-300 hidden sm:block">
-              <p class="text-xs italic text-stone-700">"When I opened the box and saw my dog's soulful eyes captured in thread, I was moved to tears. Truly an heirloom."</p>
-              <p class="text-[11px] font-bold text-wood-dark mt-2">— Sarah M. & Charlie</p>
+              <p class="text-xs italic text-stone-700" data-content-key="stopPoint1.quote">${sp1.quote || '"When I opened the box and saw my dog\'s soulful eyes captured in thread, I was moved to tears. Truly an heirloom."'}</p>
+              <p class="text-[11px] font-bold text-wood-dark mt-2" data-content-key="stopPoint1.author">${sp1.author || '— Sarah M. & Charlie'}</p>
             </div>
           </div>
         </div>
@@ -137,13 +138,13 @@ export function renderHomePage() {
         <div class="text-center max-w-2xl mx-auto mb-16">
           <div class="inline-flex items-center gap-2 text-wood-medium text-xs font-bold uppercase tracking-widest mb-3">
             <span class="w-2 h-2 rounded-full bg-wood"></span>
-            Stop Point 02 • Formats & Materials
+            <span data-content-key="stopPoint2.badge">${sp2.badge || 'Stop Point 02 • Formats & Materials'}</span>
           </div>
-          <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight">
-            Carry Their Love Everywhere
+          <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight" data-content-key="stopPoint2.title">
+            ${sp2.title || 'Carry Their Love Everywhere'}
           </h2>
-          <p class="mt-4 text-stone-600 text-base sm:text-lg font-light">
-            Designed for durability and timeless elegance. Available in lightweight pocket keychains or stunning wall frames.
+          <p class="mt-4 text-stone-600 text-base sm:text-lg font-light" data-content-key="stopPoint2.subtitle">
+            ${sp2.subtitle || 'Designed for durability and timeless elegance. Available in lightweight pocket keychains or stunning wall frames.'}
           </p>
         </div>
 
@@ -152,21 +153,20 @@ export function renderHomePage() {
           <div class="bg-linen-100 rounded-3xl p-8 shadow-md hover:shadow-xl transition-shadow border stitch-border-dashed flex flex-col justify-between">
             <div>
               <div class="w-12 h-12 rounded-2xl bg-wood/20 text-wood-dark flex items-center justify-center font-serif text-2xl font-bold mb-6">
-                🗝️
+                ${sp2.card1Icon || '🗝️'}
               </div>
-              <h3 class="font-serif text-2xl font-bold text-stone-900 mb-2">Miniature Wooden Keychain</h3>
-              <p class="text-stone-600 text-sm leading-relaxed mb-6">
-                Our signature creation! A 1.8-inch circular natural beechwood frame, protected with a water-resistant fabric sealer, linked with stainless steel chains and split keyring.
+              <h3 class="font-serif text-2xl font-bold text-stone-900 mb-2" data-content-key="stopPoint2.card1Title">${sp2.card1Title || 'Miniature Wooden Keychain'}</h3>
+              <p class="text-stone-600 text-sm leading-relaxed mb-6" data-content-key="stopPoint2.card1Desc">
+                ${sp2.card1Desc || 'Our signature creation! A 1.8-inch circular natural beechwood frame, protected with a water-resistant fabric sealer, linked with stainless steel chains and split keyring.'}
               </p>
               <ul class="space-y-2 text-sm text-stone-700 mb-8">
-                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> Beech / Oak laser-cut hoop (lightweight)</li>
-                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> Heavy-duty stainless steel split ring</li>
-                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> Double-sealed linen fabric protection</li>
+                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> <span data-content-key="stopPoint2.card1Bullet1">${sp2.card1Bullet1 || 'Beech / Oak laser-cut hoop (lightweight)'}</span></li>
+                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> <span data-content-key="stopPoint2.card1Bullet2">${sp2.card1Bullet2 || 'Heavy-duty stainless steel split ring'}</span></li>
+                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> <span data-content-key="stopPoint2.card1Bullet3">${sp2.card1Bullet3 || 'Double-sealed linen fabric protection'}</span></li>
               </ul>
             </div>
             <a href="#preview" class="w-full py-3.5 px-6 rounded-full bg-wood-dark hover:bg-wood text-white font-semibold text-sm text-center transition flex items-center justify-center gap-2">
-              <span>Test with Your Pet's Photo</span>
-              <span>→</span>
+              <span data-content-key="stopPoint2.card1BtnText">${sp2.card1BtnText || "Test with Your Pet's Photo →"}</span>
             </a>
           </div>
 
@@ -174,20 +174,20 @@ export function renderHomePage() {
           <div class="bg-linen-100 rounded-3xl p-8 shadow-md hover:shadow-xl transition-shadow border stitch-border-dashed flex flex-col justify-between">
             <div>
               <div class="w-12 h-12 rounded-2xl bg-terracotta/10 text-terracotta flex items-center justify-center font-serif text-2xl font-bold mb-6">
-                🖼️
+                ${sp2.card2Icon || '🖼️'}
               </div>
-              <h3 class="font-serif text-2xl font-bold text-stone-900 mb-2">Bespoke Framed Wall Hoops</h3>
-              <p class="text-stone-600 text-sm leading-relaxed mb-6">
-                Available in 4-inch, 5-inch, and 6-inch bamboo embroidery hoops. Includes brass tightening screw, hanging loop, and custom engraved pet nameplate option.
+              <h3 class="font-serif text-2xl font-bold text-stone-900 mb-2" data-content-key="stopPoint2.card2Title">${sp2.card2Title || 'Bespoke Framed Wall Hoops'}</h3>
+              <p class="text-stone-600 text-sm leading-relaxed mb-6" data-content-key="stopPoint2.card2Desc">
+                ${sp2.card2Desc || 'Available in 4-inch, 5-inch, and 6-inch bamboo embroidery hoops. Includes brass tightening screw, hanging loop, and custom engraved pet nameplate option.'}
               </p>
               <ul class="space-y-2 text-sm text-stone-700 mb-8">
-                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> Full chest or multi-pet portraits</li>
-                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> Embroidered botanical floral wreaths</li>
-                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> Ready to mount on wall or desk easel</li>
+                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> <span data-content-key="stopPoint2.card2Bullet1">${sp2.card2Bullet1 || 'Full chest or multi-pet portraits'}</span></li>
+                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> <span data-content-key="stopPoint2.card2Bullet2">${sp2.card2Bullet2 || 'Embroidered botanical floral wreaths'}</span></li>
+                <li class="flex items-center gap-2"><span class="text-terracotta">✓</span> <span data-content-key="stopPoint2.card2Bullet3">${sp2.card2Bullet3 || 'Ready to mount on wall or desk easel'}</span></li>
               </ul>
             </div>
             <a href="#portfolio" class="w-full py-3.5 px-6 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-900 font-semibold text-sm text-center border border-linen-400 transition">
-              View Wall Hoop Gallery
+              <span data-content-key="stopPoint2.card2BtnText">${sp2.card2BtnText || 'View Wall Hoop Gallery'}</span>
             </a>
           </div>
         </div>

@@ -31,6 +31,39 @@ export const defaultSiteContent = {
     step3Title: '3. Handcrafted & Delivered',
     step3Desc: 'Over 12 to 25 hours of detailed single-strand cotton needlework, mounted into a smooth wooden keepsake.'
   },
+  stopPoint1: {
+    badge: 'Stop Point 01 • Master Craftsmanship',
+    title: 'Single-Strand Precision,',
+    titleHighlight: 'Thread by Patient Thread',
+    description: "Unlike machine embroidery, each PetEmbro piece uses single strands of fine DMC cotton thread. We micro-layer up to 30 distinct hues to recreate the authentic texture of your pet's fur, the wet shine of their nose, and that unmistakable sparkle in their eyes.",
+    stat1Number: '14+ Hrs',
+    stat1Label: 'Per Miniature Portrait',
+    stat2Number: '450+',
+    stat2Label: 'DMC Floss Color Shades',
+    linkText: 'Read more about our materials & process →',
+    image: '/assets/keychain_ref.png',
+    quote: "\"When I opened the box and saw my dog's soulful eyes captured in thread, I was moved to tears. Truly an heirloom.\"",
+    author: '— Sarah M. & Charlie'
+  },
+  stopPoint2: {
+    badge: 'Stop Point 02 • Formats & Materials',
+    title: 'Carry Their Love Everywhere',
+    subtitle: 'Designed for durability and timeless elegance. Available in lightweight pocket keychains or stunning wall frames.',
+    card1Icon: '🗝️',
+    card1Title: 'Miniature Wooden Keychain',
+    card1Desc: 'Our signature creation! A 1.8-inch circular natural beechwood frame, protected with a water-resistant fabric sealer, linked with stainless steel chains and split keyring.',
+    card1Bullet1: 'Beech / Oak laser-cut hoop (lightweight)',
+    card1Bullet2: 'Heavy-duty stainless steel split ring',
+    card1Bullet3: 'Double-sealed linen fabric protection',
+    card1BtnText: "Test with Your Pet's Photo →",
+    card2Icon: '🖼️',
+    card2Title: 'Bespoke Framed Wall Hoops',
+    card2Desc: 'Available in 4-inch, 5-inch, and 6-inch bamboo embroidery hoops. Includes brass tightening screw, hanging loop, and custom engraved pet nameplate option.',
+    card2Bullet1: 'Full chest or multi-pet portraits',
+    card2Bullet2: 'Embroidered botanical floral wreaths',
+    card2Bullet3: 'Ready to mount on wall or desk easel',
+    card2BtnText: 'View Wall Hoop Gallery'
+  },
   about: {
     badge: 'The Artisan Behind PetEmbro',
     headline: 'Handcrafted with Thread, Needle & Devotion',
@@ -52,10 +85,22 @@ export const defaultSiteContent = {
     hours: 'Mon – Fri: 9:00 AM – 6:00 PM (EST)',
     location: 'Montréal & Burlington • Worldwide Shipping'
   },
+  footer: {
+    socialTitle: 'Social Media',
+    socialDesc: 'Watch behind-the-scenes stitching time-lapses and new customer reveals daily!',
+    socialHandle: 'Follow @petembro_crafts on social media'
+  },
+  socialLinks: [
+    { id: 'instagram', platform: 'instagram', label: 'Instagram', url: 'https://instagram.com' },
+    { id: 'tiktok', platform: 'tiktok', label: 'TikTok', url: 'https://tiktok.com' },
+    { id: 'pinterest', platform: 'pinterest', label: 'Pinterest', url: 'https://pinterest.com' },
+    { id: 'facebook', platform: 'facebook', label: 'Facebook', url: 'https://facebook.com' }
+  ],
   socials: {
     instagram: 'https://instagram.com',
     tiktok: 'https://tiktok.com',
     pinterest: 'https://pinterest.com',
+    facebook: 'https://facebook.com',
     whatsapp: 'https://wa.me/'
   },
   portfolioItems: [
@@ -241,6 +286,41 @@ export function deletePortfolioItem(id) {
   const content = getSiteContent();
   content.portfolioItems = content.portfolioItems.filter(p => p.id !== id);
   saveSiteContent(content);
+}
+
+// Social Links CRUD
+export function getSocialLinks() {
+  const content = getSiteContent();
+  return content.socialLinks || defaultSiteContent.socialLinks;
+}
+
+export function saveSocialLinks(links) {
+  const content = getSiteContent();
+  content.socialLinks = links;
+  // Also synchronize legacy socials map
+  content.socials = content.socials || {};
+  links.forEach(l => {
+    if (l.platform) content.socials[l.platform] = l.url;
+  });
+  saveSiteContent(content);
+}
+
+export function addSocialLink(link) {
+  const links = getSocialLinks();
+  const id = link.platform + '_' + Date.now();
+  links.push({
+    id,
+    platform: link.platform || 'instagram',
+    label: link.label || link.platform,
+    url: link.url || 'https://'
+  });
+  saveSocialLinks(links);
+}
+
+export function deleteSocialLink(id) {
+  let links = getSocialLinks();
+  links = links.filter(l => l.id !== id);
+  saveSocialLinks(links);
 }
 
 // Reset all to initial defaults

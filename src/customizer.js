@@ -17,9 +17,15 @@ import {
   addPortfolioItem,
   updatePortfolioItem,
   deletePortfolioItem,
+  getSocialLinks,
+  saveSocialLinks,
+  addSocialLink,
+  deleteSocialLink,
   resetSiteContent,
   exportContentFile
 } from './services/contentStore.js';
+
+import { SOCIAL_PLATFORMS, getSocialIconSvg } from './utils/socialIcons.js';
 
 class PetEmbroCustomizer {
   constructor() {
@@ -43,6 +49,14 @@ class PetEmbroCustomizer {
     // 5. Setup tip dismiss
     document.getElementById('btn-close-tip')?.addEventListener('click', () => {
       document.getElementById('customizer-tip')?.remove();
+    });
+
+    // 6. Listen for footer edit socials button
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#footer-edit-socials-btn') || e.target.closest('.customizer-socials-trigger')) {
+        e.preventDefault();
+        this.openSocialsModal();
+      }
     });
   }
 
@@ -88,15 +102,55 @@ class PetEmbroCustomizer {
         renderHomePage();
     }
 
-    // 4. Apply customizer hooks (contenteditable, edit overlays, etc.)
+    // 4. Apply customizer hooks (contenteditable, image replacers, edit overlays, etc.)
     setTimeout(() => {
       this.applyTextEditableBindings();
+      this.applyImageReplacerBindings();
       if (route === 'portfolio') {
         this.injectPortfolioEditorControls();
       }
     }, 50);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Hook all [data-image-key] elements with interactive hover replace button
+  applyImageReplacerBindings() {
+    const images = document.querySelectorAll('[data-image-key]');
+    images.forEach(img => {
+      const parent = img.parentElement;
+      if (!parent || parent.querySelector('.customizer-img-badge')) return;
+
+      // Ensure parent has relative positioning
+      if (getComputedStyle(parent).position === 'static') {
+        parent.style.position = 'relative';
+      }
+
+      const imgKey = img.dataset.imageKey;
+      const badge = document.createElement('label');
+      badge.className = 'customizer-img-badge absolute top-3 right-3 z-30 px-3 py-1.5 rounded-full bg-stone-900/90 hover:bg-terracotta text-white text-[11px] font-semibold shadow-xl border border-linen-300/40 cursor-pointer flex items-center gap-1.5 transition transform hover:scale-105';
+      badge.innerHTML = `
+        <span>📷</span>
+        <span>Replace Photo</span>
+        <input type="file" accept="image/*" class="hidden customizer-inline-img-input" data-img-key="${imgKey}" />
+      `;
+
+      parent.appendChild(badge);
+
+      const fileInput = badge.querySelector('.customizer-inline-img-input');
+      fileInput?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          updateContentField(imgKey, reader.result);
+          img.src = reader.result;
+          this.showToast(`Updated image for "${imgKey}"`);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
   }
 
   // Hook all [data-content-key] elements with contenteditable and auto-save
@@ -343,79 +397,164 @@ class PetEmbroCustomizer {
     });
   }
 
-  // Social Links Modal
+  // Social Links Modal with full CRUD (Add, Edit, Remove)
   openSocialsModal() {
-    const content = getSiteContent();
-    const socials = content.socials || {};
-    const contact = content.contact || {};
     const container = document.getElementById('customizer-modal-container');
     if (!container) return;
 
-    container.innerHTML = `
-      <div id="socials-modal-backdrop" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-linen-100 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-linen-300">
-          <div class="flex items-center justify-between pb-4 border-b border-linen-300 mb-6">
-            <h3 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
-              <span>🔗</span> Edit Social Media & Contact Links
-            </h3>
-            <button id="socials-close-btn" class="w-8 h-8 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 flex items-center justify-center font-bold">✕</button>
-          </div>
+    const renderModalContent = () => {
+      const links = getSocialLinks();
+      const content = getSiteContent();
+      const contact = content.contact || {};
 
-          <form id="socials-form" class="space-y-4 text-xs">
-            <div>
-              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Instagram URL</label>
-              <input type="url" name="instagram" value="${socials.instagram || ''}" placeholder="https://instagram.com/..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
+      container.innerHTML = `
+        <div id="socials-modal-backdrop" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div class="bg-linen-100 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-linen-300 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-linen-300 mb-5">
+              <div>
+                <h3 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+                  <span>🔗</span> Manage Social Media Links
+                </h3>
+                <p class="text-xs text-stone-600 mt-0.5">Add, remove, or edit your social profiles. Updates appear in Navbar & Footer instantly.</p>
+              </div>
+              <button id="socials-close-btn" class="w-8 h-8 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 flex items-center justify-center font-bold">✕</button>
             </div>
 
-            <div>
-              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">TikTok URL</label>
-              <input type="url" name="tiktok" value="${socials.tiktok || ''}" placeholder="https://tiktok.com/@..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
+            <!-- Current Links List -->
+            <div class="space-y-3 mb-6">
+              <p class="text-xs font-bold uppercase tracking-wider text-stone-700">Active Social Profiles (${links.length})</p>
+              ${links.length === 0 ? `
+                <div class="p-4 rounded-xl bg-linen-200 text-center text-xs text-stone-600">
+                  No social profiles active. Add one below!
+                </div>
+              ` : links.map((link, idx) => `
+                <div class="flex items-center gap-3 p-3 rounded-2xl bg-white border border-linen-300 shadow-sm" data-social-index="${idx}">
+                  <div class="w-9 h-9 rounded-xl bg-linen-200 text-stone-800 flex items-center justify-center flex-shrink-0">
+                    ${getSocialIconSvg(link.platform)}
+                  </div>
+                  <div class="flex-grow">
+                    <span class="block text-[11px] font-bold text-stone-800 uppercase tracking-wider mb-1">${link.label || link.platform}</span>
+                    <input type="url" class="social-url-input w-full px-3 py-1.5 rounded-lg bg-linen-50 border border-linen-300 text-stone-900 text-xs focus:ring-2 focus:ring-terracotta/40 outline-none" value="${link.url}" placeholder="https://..." data-link-id="${link.id}" />
+                  </div>
+                  <button type="button" class="btn-remove-social p-2 rounded-xl text-stone-400 hover:text-red-600 hover:bg-red-50 transition flex-shrink-0" data-link-id="${link.id}" title="Remove this social link">
+                    🗑️
+                  </button>
+                </div>
+              `).join('')}
             </div>
 
-            <div>
-              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Pinterest URL</label>
-              <input type="url" name="pinterest" value="${socials.pinterest || ''}" placeholder="https://pinterest.com/..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
+            <!-- Add New Social Link Form -->
+            <div class="p-4 rounded-2xl bg-linen-200/80 border border-linen-300 mb-6 space-y-3">
+              <p class="text-xs font-bold uppercase tracking-wider text-wood-dark flex items-center gap-1.5">
+                <span>➕</span> Add New Social Network
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <select id="new-social-platform" class="px-3 py-2 rounded-xl bg-white border border-linen-300 text-xs text-stone-900 focus:ring-2 focus:ring-terracotta/40 outline-none">
+                  ${SOCIAL_PLATFORMS.map(p => `
+                    <option value="${p.id}" data-default-url="${p.defaultUrl}">${p.label}</option>
+                  `).join('')}
+                </select>
+                <div class="sm:col-span-2 flex gap-2">
+                  <input type="url" id="new-social-url" placeholder="https://..." class="flex-grow px-3 py-2 rounded-xl bg-white border border-linen-300 text-xs text-stone-900 focus:ring-2 focus:ring-terracotta/40 outline-none" />
+                  <button type="button" id="btn-add-social-submit" class="px-4 py-2 rounded-xl bg-wood-dark hover:bg-wood text-white font-semibold text-xs shadow transition flex-shrink-0">
+                    Add
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Facebook URL</label>
-              <input type="url" name="facebook" value="${socials.facebook || ''}" placeholder="https://facebook.com/..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
+            <!-- WhatsApp Direct Information -->
+            <div class="pt-4 border-t border-linen-300 mb-6 space-y-3">
+              <p class="text-xs font-bold uppercase tracking-wider text-stone-700">WhatsApp Contact</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label class="block font-medium text-stone-600 mb-1">Display Phone Number</label>
+                  <input type="text" id="social-whatsapp-phone" value="${contact.whatsapp || ''}" placeholder="+1 (555) 382-7638" class="w-full px-3 py-2 rounded-xl bg-white border border-linen-300 text-stone-900 focus:ring-2 focus:ring-terracotta/40 outline-none" />
+                </div>
+                <div>
+                  <label class="block font-medium text-stone-600 mb-1">WhatsApp Chat URL</label>
+                  <input type="url" id="social-whatsapp-url" value="${contact.whatsappUrl || ''}" placeholder="https://wa.me/..." class="w-full px-3 py-2 rounded-xl bg-white border border-linen-300 text-stone-900 focus:ring-2 focus:ring-terracotta/40 outline-none" />
+                </div>
+              </div>
             </div>
 
-            <div class="pt-2 border-t border-linen-300">
-              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">WhatsApp Phone / Direct Link</label>
-              <input type="text" name="whatsapp" value="${contact.whatsapp || ''}" placeholder="+1 (555) 382-7638" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none mb-2" />
-              <input type="url" name="whatsappUrl" value="${socials.whatsapp || ''}" placeholder="https://wa.me/..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
-            </div>
-
+            <!-- Modal Action Buttons -->
             <div class="pt-4 flex items-center justify-end gap-3 border-t border-linen-300">
-              <button type="button" id="socials-cancel-btn" class="px-5 py-2.5 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 font-semibold text-xs transition">Cancel</button>
-              <button type="submit" class="px-6 py-2.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-semibold text-xs shadow transition">Save Social Links</button>
+              <button type="button" id="socials-cancel-btn" class="px-5 py-2.5 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 font-semibold text-xs transition">Close</button>
+              <button type="button" id="socials-save-btn" class="px-6 py-2.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-semibold text-xs shadow transition">Save All Changes</button>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-    const closeModal = () => { container.innerHTML = ''; };
-    document.getElementById('socials-close-btn')?.addEventListener('click', closeModal);
-    document.getElementById('socials-cancel-btn')?.addEventListener('click', closeModal);
+      // Set default URL for selected platform
+      const selectEl = document.getElementById('new-social-platform');
+      const urlInput = document.getElementById('new-social-url');
+      if (selectEl && urlInput) {
+        urlInput.value = selectEl.options[selectEl.selectedIndex]?.dataset.defaultUrl || 'https://';
+        selectEl.onchange = () => {
+          urlInput.value = selectEl.options[selectEl.selectedIndex]?.dataset.defaultUrl || 'https://';
+        };
+      }
 
-    document.getElementById('socials-form')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      updateContentField('socials.instagram', formData.get('instagram'));
-      updateContentField('socials.tiktok', formData.get('tiktok'));
-      updateContentField('socials.pinterest', formData.get('pinterest'));
-      updateContentField('socials.facebook', formData.get('facebook'));
-      updateContentField('socials.whatsapp', formData.get('whatsappUrl'));
-      updateContentField('contact.whatsapp', formData.get('whatsapp'));
+      // Close handlers
+      const closeModal = () => { container.innerHTML = ''; };
+      document.getElementById('socials-close-btn')?.addEventListener('click', closeModal);
+      document.getElementById('socials-cancel-btn')?.addEventListener('click', closeModal);
 
-      this.showToast('Updated social media & WhatsApp links');
-      closeModal();
-      renderNavbar(this.currentRoute);
-      renderFooter();
-    });
+      // Handle adding new social link
+      document.getElementById('btn-add-social-submit')?.addEventListener('click', () => {
+        const platform = selectEl.value;
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        const label = selectedOption.text;
+        const url = urlInput.value.trim() || 'https://';
+
+        addSocialLink({ platform, label, url });
+        this.showToast(`Added ${label}`);
+        renderNavbar(this.currentRoute);
+        renderFooter();
+        renderModalContent();
+      });
+
+      // Handle removing a link
+      document.querySelectorAll('.btn-remove-social').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.linkId;
+          deleteSocialLink(id);
+          this.showToast('Removed social link');
+          renderNavbar(this.currentRoute);
+          renderFooter();
+          renderModalContent();
+        });
+      });
+
+      // Handle Save All Changes
+      document.getElementById('socials-save-btn')?.addEventListener('click', () => {
+        // Gather updated URLs
+        const currentLinks = getSocialLinks();
+        document.querySelectorAll('.social-url-input').forEach(inp => {
+          const id = inp.dataset.linkId;
+          const found = currentLinks.find(l => l.id === id);
+          if (found) {
+            found.url = inp.value.trim();
+          }
+        });
+        saveSocialLinks(currentLinks);
+
+        // Update WhatsApp details
+        const waPhone = document.getElementById('social-whatsapp-phone')?.value.trim();
+        const waUrl = document.getElementById('social-whatsapp-url')?.value.trim();
+        if (waPhone !== undefined) updateContentField('contact.whatsapp', waPhone);
+        if (waUrl !== undefined) updateContentField('contact.whatsappUrl', waUrl);
+
+        this.showToast('All social links saved successfully');
+        closeModal();
+        renderNavbar(this.currentRoute);
+        renderFooter();
+      });
+    };
+
+    renderModalContent();
   }
 
   // Setup toolbar handlers

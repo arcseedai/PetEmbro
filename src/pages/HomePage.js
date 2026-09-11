@@ -29,12 +29,12 @@ export function renderHomePage() {
 
   root.innerHTML = `
     <!-- 1. HERO SECTION -->
-    <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-linen-weave pt-12 pb-20">
+    <section class="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-linen-weave pt-12 pb-20">
       <!-- Decorative stitched circles in background -->
       <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full border-2 border-dashed border-wood/20 pointer-events-none animate-spin-slow"></div>
       <div class="absolute -bottom-24 -left-24 w-80 h-80 rounded-full border-2 border-dashed border-terracotta/20 pointer-events-none"></div>
 
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <!-- Floating Needle Badge -->
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-linen-200 border border-linen-300 text-wood-dark text-xs sm:text-sm font-medium mb-6 shadow-sm animate-gentle-hover">
           <svg class="w-4 h-4 text-terracotta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -72,6 +72,8 @@ export function renderHomePage() {
 
           <a href="#portfolio" class="w-full sm:w-auto px-8 py-4 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-800 font-semibold text-base border border-linen-400/80 transition-all flex items-center justify-center gap-2">
             <span data-content-key="hero.ctaSecondary">${hero.ctaSecondary || 'Explore Portfolio'}</span>
+            <span class="text-terracotta">→</span>
+          </a>
         </div>
       </div>
 

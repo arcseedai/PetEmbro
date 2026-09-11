@@ -1,6 +1,7 @@
 // Contact & Commission Inquiries Page
 import { getSiteContent, getCommissionCategories, getSocialLinks } from '../services/contentStore.js';
 import { getSocialIconSvg } from '../utils/socialIcons.js';
+import { sendInquiry } from '../services/formService.js';
 
 export function renderContactPage() {
   const root = document.getElementById('app-root');
@@ -177,11 +178,56 @@ export function renderContactPage() {
 
 function bindContactEvents() {
   const form = document.getElementById('contact-full-form');
-  form?.addEventListener('submit', (e) => {
+  const submitBtn = form?.querySelector('button[type="submit"]');
+  const originalBtnContent = submitBtn?.innerHTML || 'Submit Commission';
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(form);
-    const name = formData.get('name');
-    alert(`Thank you, ${name}! Your commission inquiry has been submitted. Elena will review your request and get back to you shortly.`);
-    form.reset();
+    const name = formData.get('name') || 'Friend';
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="inline-flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Sending Inquiry...</span>
+        </span>
+      `;
+    }
+
+    const result = await sendInquiry(formData, 'Contact Page Inquiry');
+
+    if (result.success) {
+      form.innerHTML = `
+        <div class="p-8 rounded-3xl bg-linen-200/80 border border-linen-300 text-center space-y-4">
+          <div class="w-14 h-14 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl font-bold shadow-sm">
+            ✓
+          </div>
+          <h4 class="font-serif text-2xl font-bold text-stone-900">Inquiry Received, ${name}!</h4>
+          <p class="text-stone-600 text-sm max-w-md mx-auto leading-relaxed">
+            Your commission details have been sent directly to our email inbox. Elena will review your pet information and reply within 24 hours.
+          </p>
+          <div class="pt-2">
+            <button type="button" id="btn-reset-contact-form" class="px-6 py-2.5 rounded-full bg-wood-dark hover:bg-wood text-white font-semibold text-xs transition">
+              Send Another Message
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btn-reset-contact-form')?.addEventListener('click', () => {
+        renderContactPage();
+      });
+    } else {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnContent;
+      }
+      alert(`There was an issue sending your message: ${result.message || 'Please try again'}. You can also email us directly at hello@petembro.com`);
+    }
   });
 }

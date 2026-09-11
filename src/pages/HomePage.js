@@ -1,5 +1,6 @@
 // Home / Index Page with Parallax Scrolling & Stop Points
 import { getSiteContent, getRandomFeaturedArtwork, getCommissionCategories } from '../services/contentStore.js';
+import { sendInquiry } from '../services/formService.js';
 
 export function renderHomePage() {
   const root = document.getElementById('app-root');
@@ -408,15 +409,41 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
   }
 
   const form = document.getElementById('home-inquiry-form');
-  form?.addEventListener('submit', (e) => {
+  const submitBtn = form?.querySelector('button[type="submit"]');
+  const originalBtnContent = submitBtn?.innerHTML || 'Send Commission Inquiry';
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(form);
-    const name = formData.get('name');
-    const pet = formData.get('pet_details');
+    const name = formData.get('name') || 'Friend';
+    const pet = formData.get('pet_details') || 'your pet';
 
-    // Display celebratory feedback
-    showToast(`Thank you ${name}! Your inquiry for ${pet} has been received. We will email you shortly.`);
-    form.reset();
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="inline-flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Sending Inquiry...</span>
+        </span>
+      `;
+    }
+
+    const result = await sendInquiry(formData, 'Homepage Commission Inquiry');
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnContent;
+    }
+
+    if (result.success) {
+      showToast(`✓ Thank you ${name}! Your inquiry for ${pet} has been delivered to our inbox. We will reply within 24 hours.`);
+      form.reset();
+    } else {
+      showToast(`⚠️ Could not send inquiry: ${result.message || 'Please email us directly'}`);
+    }
   });
 }
 

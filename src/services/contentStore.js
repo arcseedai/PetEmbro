@@ -89,7 +89,24 @@ export const defaultSiteContent = {
     faq2Question: 'How do I clean my embroidery?',
     faq2Answer: 'If dust accumulates over time, gently brush the stitches with a soft dry makeup brush or clean toothbrush. Avoid submersion in water or harsh detergents.',
     faq3Question: 'How long does a custom piece take?',
-    faq3Answer: 'Standard production takes 7 to 12 business days before dispatch. Rush commission slots are available upon request.'
+    faq3Answer: 'Standard production takes 7 to 12 business days before dispatch. Rush commission slots are available upon request.',
+    faqs: [
+      {
+        id: 'faq_1',
+        question: 'Are the keychains water-resistant?',
+        answer: 'Yes! Each finished embroidery disc receives two micro-coats of archival textile sealant to protect against light rain, hand moisture, and dust.'
+      },
+      {
+        id: 'faq_2',
+        question: 'How do I clean my embroidery?',
+        answer: 'If dust accumulates over time, gently brush the stitches with a soft dry makeup brush or clean toothbrush. Avoid submersion in water or harsh detergents.'
+      },
+      {
+        id: 'faq_3',
+        question: 'How long does a custom piece take?',
+        answer: 'Standard production takes 7 to 12 business days before dispatch. Rush commission slots are available upon request.'
+      }
+    ]
   },
   contact: {
     badge: 'Direct Inquiries',
@@ -452,6 +469,54 @@ export function updateCommissionCategory(id, newLabel) {
   if (cat) {
     cat.label = newLabel.trim();
     saveCommissionCategories(categories);
+  }
+}
+
+// FAQs CRUD
+export function getFaqs() {
+  const content = getSiteContent();
+  if (content.about?.faqs && Array.isArray(content.about.faqs)) {
+    return content.about.faqs;
+  }
+  // Migration fallback from legacy fields if faqs array isn't populated
+  const legacy = [];
+  if (content.about?.faq1Question) legacy.push({ id: 'faq_1', question: content.about.faq1Question, answer: content.about.faq1Answer || '' });
+  if (content.about?.faq2Question) legacy.push({ id: 'faq_2', question: content.about.faq2Question, answer: content.about.faq2Answer || '' });
+  if (content.about?.faq3Question) legacy.push({ id: 'faq_3', question: content.about.faq3Question, answer: content.about.faq3Answer || '' });
+  return legacy.length > 0 ? legacy : defaultSiteContent.about.faqs;
+}
+
+export function saveFaqs(faqs) {
+  const content = getSiteContent();
+  if (!content.about) content.about = {};
+  content.about.faqs = faqs;
+  saveSiteContent(content);
+}
+
+export function addFaq(question, answer) {
+  const faqs = getFaqs();
+  const id = 'faq_' + Date.now();
+  faqs.push({
+    id,
+    question: question.trim(),
+    answer: answer.trim()
+  });
+  saveFaqs(faqs);
+  return id;
+}
+
+export function deleteFaq(id) {
+  let faqs = getFaqs();
+  faqs = faqs.filter(f => String(f.id) !== String(id));
+  saveFaqs(faqs);
+}
+
+export function updateFaq(id, field, value) {
+  const faqs = getFaqs();
+  const faq = faqs.find(f => String(f.id) === String(id));
+  if (faq) {
+    faq[field] = value.trim();
+    saveFaqs(faqs);
   }
 }
 

@@ -1,5 +1,5 @@
 // About Me / The Artisan & Craft Story Page
-import { getSiteContent } from '../services/contentStore.js';
+import { getSiteContent, getFaqs } from '../services/contentStore.js';
 
 export function renderAboutPage() {
   const root = document.getElementById('app-root');
@@ -7,6 +7,7 @@ export function renderAboutPage() {
 
   const content = getSiteContent();
   const about = content.about || {};
+  const faqs = getFaqs();
 
   root.innerHTML = `
     <div class="min-h-screen bg-linen-weave py-8 sm:py-16">
@@ -114,35 +115,41 @@ export function renderAboutPage() {
         </div>
 
         <!-- Care Guide FAQ -->
-        <div class="bg-linen-100 rounded-3xl p-6 sm:p-10 shadow-md border stitch-border-dashed">
-          <h3 class="font-serif text-2xl font-bold text-stone-900 mb-6 text-center" data-content-key="about.faqTitle">
-            ${about.faqTitle || 'Keepsake Care Guide'}
-          </h3>
-          <div class="space-y-4 max-w-2xl mx-auto text-sm text-stone-700">
-            <div class="p-4 rounded-xl bg-linen-200/50 border border-linen-300">
-              <p class="font-bold text-stone-900 mb-1" data-content-key="about.faq1Question">
-                ${about.faq1Question || 'Are the keychains water-resistant?'}
-              </p>
-              <p class="text-xs text-stone-600" data-content-key="about.faq1Answer">
-                ${about.faq1Answer || 'Yes! Each finished embroidery disc receives two micro-coats of archival textile sealant to protect against light rain, hand moisture, and dust.'}
-              </p>
+        <div class="bg-linen-100 rounded-3xl p-6 sm:p-10 shadow-md border stitch-border-dashed" id="faq-section-container">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 border-b border-linen-300 pb-4">
+            <div class="text-center sm:text-left">
+              <h3 class="font-serif text-2xl font-bold text-stone-900" data-content-key="about.faqTitle">
+                ${about.faqTitle || 'Keepsake Care Guide'}
+              </h3>
+              <p class="text-xs text-stone-500 mt-1">Frequently asked questions & heirloom care instructions</p>
             </div>
-            <div class="p-4 rounded-xl bg-linen-200/50 border border-linen-300">
-              <p class="font-bold text-stone-900 mb-1" data-content-key="about.faq2Question">
-                ${about.faq2Question || 'How do I clean my embroidery?'}
-              </p>
-              <p class="text-xs text-stone-600" data-content-key="about.faq2Answer">
-                ${about.faq2Answer || 'If dust accumulates over time, gently brush the stitches with a soft dry makeup brush or clean toothbrush. Avoid submersion in water or harsh detergents.'}
-              </p>
-            </div>
-            <div class="p-4 rounded-xl bg-linen-200/50 border border-linen-300">
-              <p class="font-bold text-stone-900 mb-1" data-content-key="about.faq3Question">
-                ${about.faq3Question || 'How long does a custom piece take?'}
-              </p>
-              <p class="text-xs text-stone-600" data-content-key="about.faq3Answer">
-                ${about.faq3Answer || 'Standard production takes 7 to 12 business days before dispatch. Rush commission slots are available upon request.'}
-              </p>
-            </div>
+            <button type="button" id="btn-add-faq" class="px-4 py-2 rounded-full bg-wood-dark hover:bg-wood text-white text-xs font-semibold shadow transition flex items-center gap-1.5 flex-shrink-0" title="Add a new FAQ question and answer">
+              <span>➕</span>
+              <span>Add FAQ</span>
+            </button>
+          </div>
+
+          <div class="space-y-4 max-w-2xl mx-auto text-sm text-stone-700" id="faq-list-container">
+            ${faqs.map(faq => `
+              <div class="faq-card p-4 rounded-xl bg-linen-200/50 border border-linen-300 relative group transition hover:border-linen-400" data-faq-id="${faq.id}">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="font-bold text-stone-900 mb-1 flex-grow faq-question-text" data-faq-field="question" data-faq-id="${faq.id}">
+                    ${faq.question}
+                  </p>
+                  <div class="faq-actions flex items-center gap-1 opacity-80 group-hover:opacity-100 flex-shrink-0">
+                    <button type="button" class="btn-edit-faq p-1 text-stone-400 hover:text-stone-700 rounded transition" data-faq-id="${faq.id}" title="Edit question & answer">
+                      ✏️
+                    </button>
+                    <button type="button" class="btn-delete-faq p-1 text-stone-400 hover:text-red-600 rounded transition" data-faq-id="${faq.id}" title="Delete this FAQ">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+                <p class="text-xs text-stone-600 faq-answer-text leading-relaxed mt-1" data-faq-field="answer" data-faq-id="${faq.id}">
+                  ${faq.answer}
+                </p>
+              </div>
+            `).join('')}
           </div>
         </div>
 

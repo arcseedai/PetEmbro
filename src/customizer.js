@@ -23,6 +23,10 @@ import {
   addCommissionCategory,
   deleteCommissionCategory,
   updateCommissionCategory,
+  getFaqs,
+  addFaq,
+  deleteFaq,
+  updateFaq,
   getSocialLinks,
   saveSocialLinks,
   addSocialLink,
@@ -118,6 +122,9 @@ class PetEmbroCustomizer {
       this.applyImageReplacerBindings();
       if (route === 'portfolio') {
         this.injectPortfolioEditorControls();
+      }
+      if (route === 'about') {
+        this.injectAboutFaqControls();
       }
     }, 50);
 
@@ -740,6 +747,255 @@ class PetEmbroCustomizer {
     renderModalContent();
   }
 
+  // Inject controls for FAQ section on About page
+  injectAboutFaqControls() {
+    // 1. Hook the "+ Add FAQ" button in the FAQ section header
+    const addBtn = document.getElementById('btn-add-faq');
+    if (addBtn && !addBtn.dataset.bound) {
+      addBtn.dataset.bound = 'true';
+      addBtn.addEventListener('click', () => {
+        this.openFaqModal();
+      });
+    }
+
+    // 2. Hook in-place contenteditable on question and answer texts
+    document.querySelectorAll('.faq-question-text, .faq-answer-text').forEach(el => {
+      el.contentEditable = 'true';
+      el.spellcheck = false;
+      el.classList.add('customizer-editable');
+      const field = el.dataset.faqField;
+      const faqId = el.dataset.faqId;
+      el.title = `Click to edit ${field}`;
+
+      el.onblur = () => {
+        const newVal = el.innerText.trim();
+        if (newVal) {
+          updateFaq(faqId, field, newVal);
+          this.showToast(`Updated FAQ ${field}`);
+        }
+      };
+    });
+
+    // 3. Hook edit button on each FAQ card
+    document.querySelectorAll('.btn-edit-faq').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const faqId = btn.dataset.faqId;
+        const faqs = getFaqs();
+        const faq = faqs.find(f => String(f.id) === String(faqId));
+        if (faq) {
+          this.openFaqModal(faq);
+        }
+      });
+    });
+
+    // 4. Hook delete button on each FAQ card
+    document.querySelectorAll('.btn-delete-faq').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const faqId = btn.dataset.faqId;
+        const faqs = getFaqs();
+        const faq = faqs.find(f => String(f.id) === String(faqId));
+        const preview = faq ? faq.question : 'this FAQ';
+        if (confirm(`Are you sure you want to delete "${preview}"?`)) {
+          deleteFaq(faqId);
+          this.showToast(`Deleted FAQ`);
+          this.handleRoute();
+        }
+      });
+    });
+  }
+
+  // Modal for adding or editing a single FAQ
+  openFaqModal(existingFaq = null) {
+    const isEdit = Boolean(existingFaq);
+    const container = document.getElementById('customizer-modal-container');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div id="faq-modal-backdrop" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-linen-100 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-linen-300 max-h-[90vh] overflow-y-auto">
+          <div class="flex items-center justify-between pb-4 border-b border-linen-300 mb-6">
+            <h3 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+              <span>❓</span> ${isEdit ? 'Edit FAQ' : 'Add New FAQ'}
+            </h3>
+            <button id="faq-modal-close-btn" class="w-8 h-8 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 flex items-center justify-center font-bold">✕</button>
+          </div>
+
+          <form id="faq-item-form" class="space-y-4 text-xs">
+            <div>
+              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Question *</label>
+              <input type="text" name="question" required value="${existingFaq?.question || ''}" placeholder="e.g. Can you embroider two pets on one hoop?" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
+            </div>
+
+            <div>
+              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Answer *</label>
+              <textarea name="answer" rows="4" required placeholder="Write the helpful response here..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none leading-relaxed">${existingFaq?.answer || ''}</textarea>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-linen-300">
+              <button type="button" id="faq-modal-cancel-btn" class="px-5 py-2.5 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 font-semibold text-xs transition">Cancel</button>
+              <button type="submit" class="px-6 py-2.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-semibold text-xs shadow transition">${isEdit ? 'Save Changes' : 'Add FAQ'}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+
+    const closeModal = () => { container.innerHTML = ''; };
+    document.getElementById('faq-modal-close-btn')?.addEventListener('click', closeModal);
+    document.getElementById('faq-modal-cancel-btn')?.addEventListener('click', closeModal);
+
+    document.getElementById('faq-item-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const question = form.question.value.trim();
+      const answer = form.answer.value.trim();
+
+      if (!question || !answer) return;
+
+      if (isEdit) {
+        updateFaq(existingFaq.id, 'question', question);
+        updateFaq(existingFaq.id, 'answer', answer);
+        this.showToast('FAQ updated successfully!');
+      } else {
+        addFaq(question, answer);
+        this.showToast('Added new FAQ item!');
+      }
+
+      closeModal();
+      this.handleRoute();
+    });
+  }
+
+  // Manage all FAQs modal (triggered from top toolbar button ❓ FAQs)
+  openFaqManagerModal() {
+    const container = document.getElementById('customizer-modal-container');
+    if (!container) return;
+
+    const renderModalContent = () => {
+      const faqs = getFaqs();
+
+      container.innerHTML = `
+        <div id="faqs-modal-backdrop" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div class="bg-linen-100 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-linen-300 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-linen-300 mb-5">
+              <div>
+                <h3 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+                  <span>❓</span> Manage All FAQs
+                </h3>
+                <p class="text-xs text-stone-600 mt-0.5">Add, edit, or remove questions in your Keepsake Care Guide & FAQ section.</p>
+              </div>
+              <button id="faqs-mgr-close-btn" class="w-8 h-8 rounded-full bg-linen-200 hover:bg-linen-300 text-stone-700 flex items-center justify-center font-bold">✕</button>
+            </div>
+
+            <!-- Existing FAQs List -->
+            <div class="space-y-3 mb-6">
+              <p class="text-xs font-bold uppercase tracking-wider text-stone-700">Current Questions (${faqs.length})</p>
+              ${faqs.length === 0 ? `
+                <div class="p-4 rounded-xl bg-linen-200 text-center text-xs text-stone-600">
+                  No FAQs currently added. Create your first question below!
+                </div>
+              ` : faqs.map((faq, idx) => `
+                <div class="p-3.5 rounded-2xl bg-white border border-linen-300 shadow-sm space-y-2" data-faq-id="${faq.id}">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-center gap-2 flex-grow">
+                      <span class="w-5 h-5 rounded-full bg-linen-200 text-stone-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">${idx + 1}</span>
+                      <input type="text" class="faq-mgr-question flex-grow text-xs font-bold text-stone-900 bg-transparent outline-none focus:ring-1 focus:ring-terracotta rounded px-2 py-0.5" value="${faq.question}" data-faq-id="${faq.id}" placeholder="Question..." />
+                    </div>
+                    <button type="button" class="btn-delete-faq-mgr p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 text-sm transition flex-shrink-0" data-faq-id="${faq.id}" title="Remove this FAQ">
+                      🗑️
+                    </button>
+                  </div>
+                  <textarea class="faq-mgr-answer w-full text-xs text-stone-600 bg-linen-50 border border-linen-200 rounded-xl p-2 outline-none focus:ring-1 focus:ring-terracotta resize-none" rows="2" data-faq-id="${faq.id}" placeholder="Answer...">${faq.answer}</textarea>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Add New FAQ Quick Form -->
+            <div class="p-4 rounded-2xl bg-linen-200/80 border border-linen-300 mb-6 space-y-2.5">
+              <p class="text-xs font-bold uppercase tracking-wider text-wood-dark flex items-center gap-1.5">
+                <span>➕</span> Add New Question
+              </p>
+              <form id="faq-mgr-add-form" class="space-y-2">
+                <input type="text" id="new-faq-q" required placeholder="Question (e.g. Can you ship internationally?)" class="w-full px-3 py-2 rounded-xl bg-white border border-linen-300 text-xs text-stone-900 focus:ring-2 focus:ring-terracotta/40 outline-none" />
+                <textarea id="new-faq-a" required placeholder="Answer details..." rows="2" class="w-full px-3 py-2 rounded-xl bg-white border border-linen-300 text-xs text-stone-900 focus:ring-2 focus:ring-terracotta/40 outline-none"></textarea>
+                <div class="flex justify-end">
+                  <button type="submit" class="px-5 py-2 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-semibold text-xs transition shadow">
+                    Add FAQ
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Footer / Done Button -->
+            <div class="pt-4 border-t border-linen-300 flex items-center justify-between">
+              <span class="text-[11px] text-stone-500">Auto-saves to About & Care guide</span>
+              <button id="faqs-mgr-done-btn" class="px-6 py-2.5 rounded-full bg-stone-900 hover:bg-terracotta text-white font-semibold text-xs shadow transition">
+                Done & Close
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const closeModal = () => {
+        container.innerHTML = '';
+        this.handleRoute();
+      };
+      document.getElementById('faqs-mgr-close-btn')?.addEventListener('click', closeModal);
+      document.getElementById('faqs-mgr-done-btn')?.addEventListener('click', closeModal);
+
+      // Add FAQ
+      document.getElementById('faq-mgr-add-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const qInput = document.getElementById('new-faq-q');
+        const aInput = document.getElementById('new-faq-a');
+        const q = qInput?.value.trim();
+        const a = aInput?.value.trim();
+        if (q && a) {
+          addFaq(q, a);
+          this.showToast(`Added new FAQ!`);
+          renderModalContent();
+        }
+      });
+
+      // Update question on change
+      container.querySelectorAll('.faq-mgr-question').forEach(inp => {
+        inp.addEventListener('change', (e) => {
+          const id = e.target.dataset.faqId;
+          const val = e.target.value.trim();
+          if (val) {
+            updateFaq(id, 'question', val);
+            this.showToast(`Updated FAQ question`);
+          }
+        });
+      });
+
+      // Update answer on change
+      container.querySelectorAll('.faq-mgr-answer').forEach(inp => {
+        inp.addEventListener('change', (e) => {
+          const id = e.target.dataset.faqId;
+          const val = e.target.value.trim();
+          if (val) {
+            updateFaq(id, 'answer', val);
+            this.showToast(`Updated FAQ answer`);
+          }
+        });
+      });
+
+      // Delete FAQ
+      container.querySelectorAll('.btn-delete-faq-mgr').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.faqId;
+          deleteFaq(id);
+          this.showToast(`Removed FAQ`);
+          renderModalContent();
+        });
+      });
+    };
+
+    renderModalContent();
+  }
+
   // Setup toolbar handlers
   bindToolbarEvents() {
     // 1. Edit Socials
@@ -752,13 +1008,18 @@ class PetEmbroCustomizer {
       this.openCommissionCategoriesModal();
     });
 
-    // 2. Export JSON
+    // 3. Manage FAQs
+    document.getElementById('btn-customizer-faqs')?.addEventListener('click', () => {
+      this.openFaqManagerModal();
+    });
+
+    // 4. Export JSON
     document.getElementById('btn-export-content')?.addEventListener('click', () => {
       exportContentFile();
       this.showToast('Downloaded siteContent.json');
     });
 
-    // 3. Reset Defaults
+    // 5. Reset Defaults
     document.getElementById('btn-reset-content')?.addEventListener('click', () => {
       if (confirm('Are you sure you want to reset all content, texts, and portfolio artworks back to defaults?')) {
         resetSiteContent();

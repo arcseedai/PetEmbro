@@ -137,3 +137,17 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(232, 223, 209, 0.8);
 }
+
+/* Customizer controls visibility - only show on customizer page */
+#btn-add-faq,
+.faq-actions,
+.btn-manage-commission-categories {
+  display: none !important;
+}
+
+body.customizer-active #btn-add-faq,
+body.customizer-active .faq-actions,
+body.customizer-active .btn-manage-commission-categories {
+  display: flex !important;
+}
+

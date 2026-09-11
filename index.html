@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetEmbro | Handcrafted Pet Embroidery Portraits & Keychains</title>
+  <meta name="description" content="Custom handcrafted miniature pet embroidery keychains and hoop portraits. Upload your pet photo and see an interactive 3D preview." />
+  <link rel="icon" type="image/png" href="/assets/Logo_basic_white.png" />
+  <!-- Google Fonts: Cormorant Garamond & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN for lightweight styling & custom theme -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            linen: {
+              50: '#FDFBF7',
+              100: '#FAF6F0',
+              200: '#F4EFE6',
+              300: '#E8DFD1',
+              400: '#D5C7B3',
+              900: '#2A2520'
+            },
+            wood: {
+              light: '#E5C9A4',
+              DEFAULT: '#C49A6C',
+              medium: '#9E6F40',
+              dark: '#5C381E',
+              walnut: '#3E2412'
+            },
+            terracotta: {
+              DEFAULT: '#C25D43',
+              dark: '#9E442D',
+              light: '#E3876F'
+            },
+            needle: {
+              silver: '#A0AEC0',
+              gold: '#D4AF37',
+              thread: '#B94A48'
+            }
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Playfair Display', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/src/styles/main.css" />
+</head>
+<body class="bg-linen-100 text-stone-800 font-sans antialiased selection:bg-terracotta/20 selection:text-terracotta-dark min-h-screen flex flex-col relative overflow-x-hidden">
+  <!-- Top decorative running stitch border -->
+  <div class="h-1.5 w-full bg-repeat-x stitch-line sticky top-0 z-50"></div>
+
+  <!-- App Header & Navigation Bar (rendered dynamically) -->
+  <header id="site-header" class="sticky top-1.5 z-40 bg-linen-100/90 backdrop-blur-md transition-all duration-300 border-b border-linen-300/60 shadow-sm"></header>
+
+  <!-- Mobile & Drawer Menu (Sandwich Menu Drawer) -->
+  <div id="drawer-menu-container"></div>
+
+  <!-- Dynamic Page Content Outlet -->
+  <main id="app-root" class="flex-grow"></main>
+
+  <!-- Global Needle Animation Overlay for Page Stitching -->
+  <div id="stitch-anim-overlay" class="pointer-events-none fixed inset-0 z-50 overflow-hidden hidden"></div>
+
+  <!-- Global Footer -->
+  <footer id="site-footer" class="border-t border-linen-300 bg-linen-200/80 text-stone-700 mt-auto"></footer>
+
+  <!-- Lightbox Modal Container -->
+  <div id="lightbox-container"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

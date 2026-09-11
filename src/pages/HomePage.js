@@ -19,7 +19,7 @@ export function renderHomePage() {
   const pool = featuredData.pool || [];
   let currentFeaturedIndex = featuredData.index;
 
-  const displayImage = featuredArt.image || hero.featuredImage || '/assets/keychain_ref.png';
+  const displayImage = featuredArt.image || hero.featuredImage || './assets/keychain_ref.png';
   const additional = featuredArt.additionalInfo || featuredArt.breed || '';
   const displayName = featuredArt.name
     ? (additional ? `${featuredArt.name} (${additional})` : featuredArt.name)
@@ -104,7 +104,7 @@ export function renderHomePage() {
                   <div class="w-64 sm:w-72 md:w-80 lg:w-[350px] flex-shrink-0 group/card text-left transition duration-300 marquee-card-wave" style="animation-delay: ${delay}s;">
                     <div class="p-3 sm:p-3.5 bg-white/95 backdrop-blur rounded-3xl shadow-xl hover:shadow-2xl border border-linen-300 transition-transform duration-300 hover:scale-[1.02]">
                       <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
-                        <img src="${item.image || '/assets/keychain_ref.png'}" alt="${itemTitle}" class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-500" loading="lazy" />
+                        <img src="${item.image || './assets/keychain_ref.png'}" alt="${itemTitle}" class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-500" loading="lazy" />
                         <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/90 backdrop-blur-md rounded-2xl text-white shadow-lg">
                           <p class="font-serif font-bold text-sm sm:text-base text-amber-100 truncate">${itemTitle}</p>
                           <p class="text-[11px] sm:text-xs text-linen-300 truncate mt-0.5">${itemSub}</p>
@@ -167,7 +167,7 @@ export function renderHomePage() {
 
           <div class="relative">
             <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-stone-800 p-2 bg-stone-800/60 group">
-              <img src="${sp1.image || '/assets/keychain_ref.png'}" data-image-key="stopPoint1.image" alt="Close-up hand embroidery details" class="w-full rounded-2xl object-cover" />
+              <img src="${sp1.image || './assets/keychain_ref.png'}" data-image-key="stopPoint1.image" alt="Close-up hand embroidery details" class="w-full rounded-2xl object-cover" />
             </div>
             <!-- Floating quote card -->
             <div class="absolute -bottom-6 -left-6 sm:-bottom-8 sm:-left-8 bg-linen-100 text-stone-800 p-5 rounded-2xl shadow-xl max-w-xs border border-linen-300 hidden sm:block">

@@ -26,7 +26,7 @@ export function renderNavbar(activePage = 'home') {
         <!-- Logo & Brand Name -->
         <a href="#home" class="group flex items-center gap-3 py-2 transition-transform hover:scale-[1.02]">
           <div class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-wood flex items-center justify-center shadow-md border-2 border-wood-light group-hover:rotate-6 transition-transform overflow-hidden p-1">
-            <img src="/assets/Logo_basic_white.png" alt="PetEmbro Logo" class="w-full h-full object-contain drop-shadow-sm" />
+              <img src="./assets/Logo_basic_white.png" alt="PetEmbro Logo" class="w-full h-full object-contain drop-shadow-sm" />
           </div>
           <div class="flex flex-col">
             <span class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-wood-dark group-hover:text-terracotta transition-colors">
@@ -96,7 +96,7 @@ function renderDrawer(navLinks, activePage, content) {
         <div class="p-5 flex items-center justify-between border-b border-linen-300 bg-linen-200/50">
           <div class="flex items-center gap-2.5">
             <div class="w-9 h-9 rounded-full bg-wood flex items-center justify-center shadow border-2 border-wood-light overflow-hidden p-1">
-              <img src="/assets/Logo_basic_white.png" alt="PetEmbro Logo" class="w-full h-full object-contain" />
+              <img src="./assets/Logo_basic_white.png" alt="PetEmbro Logo" class="w-full h-full object-contain" />
             </div>
             <span class="font-serif text-xl font-bold text-wood-dark">PetEmbro</span>
           </div>

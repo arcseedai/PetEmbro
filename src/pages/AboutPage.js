@@ -34,7 +34,7 @@ export function renderAboutPage() {
             <!-- Artisan Photo & Studio Badge -->
             <div class="md:col-span-5 relative group">
               <div class="rounded-2xl overflow-hidden shadow-lg border-2 border-linen-300 aspect-[4/5] bg-linen-200">
-                <img src="${about.artisanImage || '/assets/keychain_ref.png'}" data-image-key="about.artisanImage" alt="PetEmbro Studio in Hand" class="w-full h-full object-cover" />
+                <img src="${about.artisanImage || './assets/keychain_ref.png'}" data-image-key="about.artisanImage" alt="PetEmbro Studio in Hand" class="w-full h-full object-cover" />
               </div>
               <div class="absolute -bottom-4 -right-4 bg-wood-dark text-linen-100 p-3 rounded-2xl shadow-lg text-xs">
                 <p class="font-serif font-bold text-sm" data-content-key="about.artistName">${about.artistName || 'Elena Rostova'}</p>

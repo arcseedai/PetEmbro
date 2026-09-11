@@ -371,7 +371,7 @@ function initPreviewLogic() {
   currentImage.onload = () => {
     applyFilterTo3D();
   };
-  currentImage.src = '/assets/preset_extracted.jpg';
+  currentImage.src = './assets/preset_extracted.jpg';
 
   // AI Loading UI Helpers
   function showAiLoading(show) {
@@ -637,7 +637,7 @@ function initPreviewLogic() {
           currentImage = img;
           applyFilterTo3D();
         };
-        img.src = '/assets/keychain_ref.png';
+        img.src = './assets/keychain_ref.png';
       } else if (sample === 'cat') {
         createSamplePetImage('cat');
       } else if (sample === 'golden') {

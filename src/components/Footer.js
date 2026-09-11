@@ -21,7 +21,7 @@ export function renderFooter() {
         <div class="space-y-4">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-wood flex items-center justify-center shadow border-2 border-wood-light overflow-hidden p-1">
-              <img src="/assets/Logo_basic_white.png" alt="PetEmbro Logo" class="w-full h-full object-contain" />
+              <img src="./assets/Logo_basic_white.png" alt="PetEmbro Logo" class="w-full h-full object-contain" />
             </div>
             <span class="font-serif text-2xl font-bold text-wood-dark tracking-tight" data-content-key="brand.name">${brand.name || 'PetEmbro'}</span>
           </div>

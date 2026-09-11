@@ -86,7 +86,7 @@ export class Keychain3DViewer {
 
     this.setupLighting();
     this.initFabricCanvasTexture();
-    this.loadDefaultModel('/assets/Keychain.glb');
+    this.loadDefaultModel('./assets/Keychain.glb');
     this.bindControls();
 
     this.handleResize = this.handleResize.bind(this);
@@ -145,7 +145,7 @@ export class Keychain3DViewer {
 
     const initialImg = new Image();
     initialImg.crossOrigin = 'anonymous';
-    initialImg.src = '/assets/preset_extracted.jpg';
+    initialImg.src = './assets/preset_extracted.jpg';
     initialImg.onload = () => {
       ctx.drawImage(initialImg, 0, 0, 1024, 1024);
       if (this.fabricTexture) {

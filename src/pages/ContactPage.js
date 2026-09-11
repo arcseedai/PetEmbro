@@ -115,7 +115,7 @@ export function renderContactPage() {
                   <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                     <span data-content-key="inquiry.nameLabel">${inquiry.nameLabel || 'Your Full Name'}</span> *
                   </label>
-                  <input type="text" name="name" required placeholder="${inquiry.namePlaceholder || 'Elena Rostova'}" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:ring-2 focus:ring-terracotta/40 focus:outline-none" />
+                  <input type="text" name="name" required placeholder="${inquiry.namePlaceholder || 'e.g. Sarah Jenkins'}" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:ring-2 focus:ring-terracotta/40 focus:outline-none" />
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
@@ -209,7 +209,7 @@ function bindContactEvents() {
           </div>
           <h4 class="font-serif text-2xl font-bold text-stone-900">Inquiry Received, ${name}!</h4>
           <p class="text-stone-600 text-sm max-w-md mx-auto leading-relaxed">
-            Your commission details have been sent directly to our email inbox. Elena will review your pet information and reply within 24 hours.
+            Your commission details have been sent directly to our email inbox. ${getSiteContent().about?.artistName || 'Iryna'} will review your pet information and reply within 24 hours.
           </p>
           <div class="pt-2">
             <button type="button" id="btn-reset-contact-form" class="px-6 py-2.5 rounded-full bg-wood-dark hover:bg-wood text-white font-semibold text-xs transition">

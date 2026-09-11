@@ -37,7 +37,7 @@ export function renderAboutPage() {
                 <img src="${about.artisanImage || './assets/keychain_ref.png'}" data-image-key="about.artisanImage" alt="PetEmbro Studio in Hand" class="w-full h-full object-cover" />
               </div>
               <div class="absolute -bottom-4 -right-4 bg-wood-dark text-linen-100 p-3 rounded-2xl shadow-lg text-xs">
-                <p class="font-serif font-bold text-sm" data-content-key="about.artistName">${about.artistName || 'Elena Rostova'}</p>
+                <p class="font-serif font-bold text-sm" data-content-key="about.artistName">${about.artistName || 'Iryna Kirusheva'}</p>
                 <p class="text-[10px] text-stone-300" data-content-key="about.artistRole">${about.artistRole || 'Fiber Artist & Founder'}</p>
               </div>
             </div>

@@ -18,8 +18,9 @@ export function renderHomePage() {
   let currentFeaturedIndex = featuredData.index;
 
   const displayImage = featuredArt.image || hero.featuredImage || '/assets/keychain_ref.png';
+  const additional = featuredArt.additionalInfo || featuredArt.breed || '';
   const displayName = featuredArt.name
-    ? (featuredArt.breed ? `${featuredArt.name} the ${featuredArt.breed}` : featuredArt.name)
+    ? (additional ? `${featuredArt.name} (${additional})` : featuredArt.name)
     : (hero.featuredName || 'Rocky the Boxer');
   const displayDesc = featuredArt.categoryLabel || featuredArt.size || hero.featuredDesc || 'Miniature Wooden Hoop Keychain';
   const poolCount = featuredData.totalFeatured;
@@ -354,7 +355,8 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
         }, 150);
       }
       if (nameEl) {
-        nameEl.textContent = nextItem.breed ? `${nextItem.name} the ${nextItem.breed}` : nextItem.name;
+        const addInfo = nextItem.additionalInfo || nextItem.breed || '';
+        nameEl.textContent = addInfo ? `${nextItem.name} (${addInfo})` : nextItem.name;
       }
       if (descEl) {
         descEl.textContent = nextItem.categoryLabel || nextItem.size || 'Miniature Keepsake';

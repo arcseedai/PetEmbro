@@ -17,6 +17,7 @@ import {
   addPortfolioItem,
   updatePortfolioItem,
   deletePortfolioItem,
+  reorderPortfolioItems,
   getSocialLinks,
   saveSocialLinks,
   addSocialLink,
@@ -191,12 +192,15 @@ class PetEmbroCustomizer {
     if (filterTabs && !document.getElementById('customizer-add-artwork-bar')) {
       const addBar = document.createElement('div');
       addBar.id = 'customizer-add-artwork-bar';
-      addBar.className = 'flex justify-center mb-8';
+      addBar.className = 'flex flex-col items-center gap-2 mb-8';
       addBar.innerHTML = `
         <button id="btn-add-portfolio-item" class="px-6 py-3 rounded-full bg-wood-dark hover:bg-wood text-white font-semibold text-sm shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2 border-2 border-wood-light">
           <span class="text-lg">➕</span>
           <span>Add New Portfolio Artwork</span>
         </button>
+        <p class="text-xs text-stone-600 flex items-center gap-1.5 bg-linen-200/80 px-3 py-1 rounded-full border border-linen-300">
+          <span class="text-stone-400 font-mono font-bold">⠿</span> Drag and drop cards to reorder your portfolio gallery
+        </p>
       `;
       filterTabs.parentNode.insertBefore(addBar, filterTabs);
 
@@ -214,11 +218,17 @@ class PetEmbroCustomizer {
       if (!item) return;
 
       const actions = document.createElement('div');
-      actions.className = 'customizer-card-actions flex items-center justify-between gap-1.5 p-2 bg-stone-900/90 backdrop-blur text-white text-[11px] border-b border-linen-300';
+      actions.className = 'customizer-card-actions flex items-center justify-between gap-1.5 p-2 bg-stone-900/90 backdrop-blur text-white text-[11px] border-b border-linen-300 select-none';
       actions.innerHTML = `
-        <button class="px-2 py-1 rounded ${item.featured ? 'bg-amber-600 hover:bg-amber-500 text-white font-bold' : 'bg-stone-800 hover:bg-stone-700 text-stone-300'} transition flex items-center gap-1 btn-toggle-featured" data-item-id="${itemId}" title="${item.featured ? 'Marked as Featured in Header Showcase (Click to unfeature)' : 'Click to feature in Header Showcase'}">
-          <span>${item.featured ? '★ Featured' : '☆ Feature'}</span>
-        </button>
+        <div class="flex items-center gap-1.5">
+          <span class="portfolio-drag-handle px-1.5 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white cursor-grab active:cursor-grabbing font-mono text-xs flex items-center gap-1" title="Drag to reorder this artwork">
+            <span>⠿</span>
+            <span class="text-[10px] font-sans">Move</span>
+          </span>
+          <button class="px-2 py-1 rounded ${item.featured ? 'bg-amber-600 hover:bg-amber-500 text-white font-bold' : 'bg-stone-800 hover:bg-stone-700 text-stone-300'} transition flex items-center gap-1 btn-toggle-featured" data-item-id="${itemId}" title="${item.featured ? 'Marked as Featured in Header Showcase (Click to unfeature)' : 'Click to feature in Header Showcase'}">
+            <span>${item.featured ? '★ Featured' : '☆ Feature'}</span>
+          </button>
+        </div>
         <div class="flex items-center gap-1.5">
           <label class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 cursor-pointer transition flex items-center gap-1" title="Replace this photo">
             <span>📷</span> Photo
@@ -234,6 +244,50 @@ class PetEmbroCustomizer {
       `;
 
       card.prepend(actions);
+
+      // Drag and drop setup for easy reordering
+      card.setAttribute('draggable', 'true');
+      card.classList.add('transition-all', 'duration-200');
+
+      card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', String(itemId));
+        e.dataTransfer.effectAllowed = 'move';
+        card.classList.add('opacity-40', 'border-dashed', 'border-terracotta');
+        window._customizerDraggingId = itemId;
+      });
+
+      card.addEventListener('dragend', () => {
+        card.classList.remove('opacity-40', 'border-dashed', 'border-terracotta');
+        document.querySelectorAll('.portfolio-card').forEach(c => {
+          c.classList.remove('ring-4', 'ring-terracotta/60', 'scale-[1.02]');
+        });
+        window._customizerDraggingId = null;
+      });
+
+      card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (window._customizerDraggingId && window._customizerDraggingId !== itemId) {
+          card.classList.add('ring-4', 'ring-terracotta/60', 'scale-[1.02]');
+        }
+      });
+
+      card.addEventListener('dragleave', () => {
+        card.classList.remove('ring-4', 'ring-terracotta/60', 'scale-[1.02]');
+      });
+
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        card.classList.remove('ring-4', 'ring-terracotta/60', 'scale-[1.02]');
+        const sourceId = parseInt(e.dataTransfer.getData('text/plain') || window._customizerDraggingId, 10);
+        if (sourceId && sourceId !== itemId) {
+          const success = reorderPortfolioItems(sourceId, itemId);
+          if (success) {
+            this.showToast(`Updated portfolio gallery order!`);
+            this.handleRoute();
+          }
+        }
+      });
 
       // Handle 1-click featured toggle
       actions.querySelector('.btn-toggle-featured')?.addEventListener('click', () => {
@@ -291,14 +345,14 @@ class PetEmbroCustomizer {
 
           <form id="portfolio-item-form" class="space-y-4 text-xs">
             <div>
-              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Pet Name *</label>
+              <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Name *</label>
               <input type="text" name="name" required value="${existingItem?.name || ''}" placeholder="e.g. Buster" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Breed *</label>
-                <input type="text" name="breed" required value="${existingItem?.breed || ''}" placeholder="e.g. French Bulldog" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
+                <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Additional Info *</label>
+                <input type="text" name="additionalInfo" value="${existingItem?.additionalInfo || existingItem?.breed || ''}" placeholder="e.g. French Bulldog, Memorial, or Custom Details" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-linen-300 text-stone-900 text-sm focus:ring-2 focus:ring-terracotta/40 outline-none" />
               </div>
               <div>
                 <label class="block font-bold text-stone-700 uppercase tracking-wider mb-1">Category *</label>
@@ -308,6 +362,7 @@ class PetEmbroCustomizer {
                   <option value="cats" ${existingItem?.category === 'cats' ? 'selected' : ''}>Cats</option>
                   <option value="special" ${existingItem?.category === 'special' ? 'selected' : ''}>Small Pets & Bunnies</option>
                   <option value="memorial" ${existingItem?.category === 'memorial' ? 'selected' : ''}>Memorials</option>
+                  <option value="others" ${existingItem?.category === 'others' ? 'selected' : ''}>Others</option>
                 </select>
               </div>
             </div>
@@ -382,12 +437,15 @@ class PetEmbroCustomizer {
         dogs: 'Wall Hoop (Dogs)',
         cats: 'Wall Hoop (Cats)',
         special: 'Wall Hoop (Small Pets)',
-        memorial: 'Memorial Keepsake'
+        memorial: 'Memorial Keepsake',
+        others: 'Other Creations'
       };
 
+      const addInfo = formData.get('additionalInfo') || '';
       const itemData = {
         name: formData.get('name'),
-        breed: formData.get('breed'),
+        breed: addInfo,
+        additionalInfo: addInfo,
         category: cat,
         categoryLabel: catLabels[cat] || 'Handcrafted Keepsake',
         size: formData.get('size'),

@@ -281,10 +281,12 @@ export function updatePortfolioItem(id, fields) {
 export function addPortfolioItem(item) {
   const content = getSiteContent();
   const maxId = content.portfolioItems.reduce((max, p) => Math.max(max, p.id || 0), 0);
+  const additionalInfo = item.additionalInfo || item.breed || '';
   const newItem = {
     id: maxId + 1,
-    name: item.name || 'New Pet',
-    breed: item.breed || 'Custom Breed',
+    name: item.name || 'New Artwork',
+    breed: additionalInfo,
+    additionalInfo: additionalInfo,
     category: item.category || 'keychains',
     categoryLabel: item.categoryLabel || 'Miniature Keychain',
     size: item.size || '1.8" Hoop',
@@ -302,6 +304,21 @@ export function deletePortfolioItem(id) {
   const content = getSiteContent();
   content.portfolioItems = content.portfolioItems.filter(p => p.id !== id);
   saveSiteContent(content);
+}
+
+// Reorder portfolio items via drag-and-drop
+export function reorderPortfolioItems(sourceId, targetId) {
+  const content = getSiteContent();
+  const items = [...(content.portfolioItems || [])];
+  const fromIndex = items.findIndex(p => p.id === sourceId);
+  const toIndex = items.findIndex(p => p.id === targetId);
+  if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return false;
+
+  const [moved] = items.splice(fromIndex, 1);
+  items.splice(toIndex, 0, moved);
+  content.portfolioItems = items;
+  saveSiteContent(content);
+  return true;
 }
 
 // Get randomly selected featured artwork from marked items

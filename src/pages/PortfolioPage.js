@@ -57,7 +57,7 @@ export function renderPortfolioPage() {
                 ${featuredItem.name}
               </h2>
               <p class="text-sm font-semibold text-terracotta">
-                ${featuredItem.breed}
+                ${featuredItem.additionalInfo || featuredItem.breed || ''}
               </p>
               <p class="text-stone-600 text-sm leading-relaxed">
                 ${featuredItem.caption}
@@ -95,6 +95,7 @@ export function renderPortfolioPage() {
           <button data-filter="cats" class="filter-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-linen-200 text-stone-700 hover:bg-linen-300 transition">Cats</button>
           <button data-filter="special" class="filter-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-linen-200 text-stone-700 hover:bg-linen-300 transition">Small Pets & Bunnies</button>
           <button data-filter="memorial" class="filter-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-linen-200 text-stone-700 hover:bg-linen-300 transition">Memorials</button>
+          <button data-filter="others" class="filter-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium bg-linen-200 text-stone-700 hover:bg-linen-300 transition">Others</button>
         </div>
 
         <!-- GALLERY GRID OF SMALLER IMAGES (Click to enlarge in Lightbox) -->
@@ -126,7 +127,7 @@ export function renderPortfolioPage() {
                     <h3 class="font-serif font-bold text-stone-900 text-base group-hover:text-terracotta transition-colors">${item.name}</h3>
                     <span class="text-xs text-stone-500">${item.size}</span>
                   </div>
-                  <p class="text-xs text-terracotta font-medium mb-2">${item.breed}</p>
+                  <p class="text-xs text-terracotta font-medium mb-2">${item.additionalInfo || item.breed || ''}</p>
                   <p class="text-xs text-stone-600 line-clamp-2">${item.caption}</p>
                 </div>
                 <div class="mt-3 pt-2 border-t border-linen-300 flex items-center justify-between text-[11px] text-stone-500">
@@ -204,7 +205,7 @@ function openLightbox(item) {
           <div>
             <span class="text-xs font-bold text-terracotta uppercase tracking-wider">${item.categoryLabel}</span>
             <h2 class="font-serif text-3xl font-bold text-stone-900 mt-1">${item.name}</h2>
-            <p class="text-sm font-medium text-stone-600 mb-4">${item.breed}</p>
+            <p class="text-sm font-medium text-stone-600 mb-4">${item.additionalInfo || item.breed || ''}</p>
             <p class="text-stone-700 text-sm leading-relaxed mb-6">${item.caption}</p>
 
             <div class="bg-linen-200/60 p-4 rounded-2xl border border-linen-300 space-y-2 text-xs">

@@ -152,7 +152,7 @@ export function renderHomePage() {
           <!-- Card 1: Miniature Keychain -->
           <div class="bg-linen-100 rounded-3xl p-8 shadow-md hover:shadow-xl transition-shadow border stitch-border-dashed flex flex-col justify-between">
             <div>
-              <div class="w-12 h-12 rounded-2xl bg-wood/20 text-wood-dark flex items-center justify-center font-serif text-2xl font-bold mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-wood/20 text-wood-dark flex items-center justify-center font-serif text-2xl font-bold mb-6" data-content-key="stopPoint2.card1Icon">
                 ${sp2.card1Icon || '🗝️'}
               </div>
               <h3 class="font-serif text-2xl font-bold text-stone-900 mb-2" data-content-key="stopPoint2.card1Title">${sp2.card1Title || 'Miniature Wooden Keychain'}</h3>
@@ -173,7 +173,7 @@ export function renderHomePage() {
           <!-- Card 2: Framed Wall Hoops -->
           <div class="bg-linen-100 rounded-3xl p-8 shadow-md hover:shadow-xl transition-shadow border stitch-border-dashed flex flex-col justify-between">
             <div>
-              <div class="w-12 h-12 rounded-2xl bg-terracotta/10 text-terracotta flex items-center justify-center font-serif text-2xl font-bold mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-terracotta/10 text-terracotta flex items-center justify-center font-serif text-2xl font-bold mb-6" data-content-key="stopPoint2.card2Icon">
                 ${sp2.card2Icon || '🖼️'}
               </div>
               <h3 class="font-serif text-2xl font-bold text-stone-900 mb-2" data-content-key="stopPoint2.card2Title">${sp2.card2Title || 'Bespoke Framed Wall Hoops'}</h3>

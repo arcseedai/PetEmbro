@@ -31,9 +31,9 @@ export function renderAboutPage() {
           <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
             
             <!-- Artisan Photo & Studio Badge -->
-            <div class="md:col-span-5 relative">
+            <div class="md:col-span-5 relative group">
               <div class="rounded-2xl overflow-hidden shadow-lg border-2 border-linen-300 aspect-[4/5] bg-linen-200">
-                <img src="/assets/keychain_ref.png" alt="PetEmbro Studio in Hand" class="w-full h-full object-cover" />
+                <img src="${about.artisanImage || '/assets/keychain_ref.png'}" data-image-key="about.artisanImage" alt="PetEmbro Studio in Hand" class="w-full h-full object-cover" />
               </div>
               <div class="absolute -bottom-4 -right-4 bg-wood-dark text-linen-100 p-3 rounded-2xl shadow-lg text-xs">
                 <p class="font-serif font-bold text-sm" data-content-key="about.artistName">${about.artistName || 'Elena Rostova'}</p>
@@ -72,46 +72,76 @@ export function renderAboutPage() {
         <!-- Materials Breakdown -->
         <div class="mb-16">
           <div class="text-center max-w-xl mx-auto mb-10">
-            <h3 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900">Our Sacred Materials</h3>
-            <p class="text-stone-600 text-sm mt-1">We source only sustainable, archive-grade natural materials designed to last generations.</p>
+            <h3 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900" data-content-key="about.materialsTitle">
+              ${about.materialsTitle || 'Our Sacred Materials'}
+            </h3>
+            <p class="text-stone-600 text-sm mt-1" data-content-key="about.materialsSubtitle">
+              ${about.materialsSubtitle || 'We source only sustainable, archive-grade natural materials designed to last generations.'}
+            </p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-linen-100 p-6 rounded-2xl border border-linen-300 shadow-sm text-center">
-              <div class="w-12 h-12 mx-auto rounded-full bg-wood/20 text-wood-dark flex items-center justify-center font-serif text-xl font-bold mb-3">🌿</div>
-              <h4 class="font-serif font-bold text-base text-stone-900 mb-1">100% Organic Linen</h4>
-              <p class="text-xs text-stone-600 leading-relaxed">Unbleached European flax linen. Strong, tear-resistant, and naturally textured with an artisanal oatmeal grain.</p>
+              <div class="w-12 h-12 mx-auto rounded-full bg-wood/20 text-wood-dark flex items-center justify-center font-serif text-xl font-bold mb-3" data-content-key="about.mat1Icon">${about.mat1Icon || '🌿'}</div>
+              <h4 class="font-serif font-bold text-base text-stone-900 mb-1" data-content-key="about.mat1Title">
+                ${about.mat1Title || '100% Organic Linen'}
+              </h4>
+              <p class="text-xs text-stone-600 leading-relaxed" data-content-key="about.mat1Desc">
+                ${about.mat1Desc || 'Unbleached European flax linen. Strong, tear-resistant, and naturally textured with an artisanal oatmeal grain.'}
+              </p>
             </div>
 
             <div class="bg-linen-100 p-6 rounded-2xl border border-linen-300 shadow-sm text-center">
-              <div class="w-12 h-12 mx-auto rounded-full bg-terracotta/15 text-terracotta flex items-center justify-center font-serif text-xl font-bold mb-3">🧵</div>
-              <h4 class="font-serif font-bold text-base text-stone-900 mb-1">DMC French Cotton Floss</h4>
-              <p class="text-xs text-stone-600 leading-relaxed">Colorfast, double-mercerized 100% Egyptian cotton thread. Resists UV fading and retains its vibrant sheen for decades.</p>
+              <div class="w-12 h-12 mx-auto rounded-full bg-terracotta/15 text-terracotta flex items-center justify-center font-serif text-xl font-bold mb-3" data-content-key="about.mat2Icon">${about.mat2Icon || '🧵'}</div>
+              <h4 class="font-serif font-bold text-base text-stone-900 mb-1" data-content-key="about.mat2Title">
+                ${about.mat2Title || 'DMC French Cotton Floss'}
+              </h4>
+              <p class="text-xs text-stone-600 leading-relaxed" data-content-key="about.mat2Desc">
+                ${about.mat2Desc || 'Colorfast, double-mercerized 100% Egyptian cotton thread. Resists UV fading and retains its vibrant sheen for decades.'}
+              </p>
             </div>
 
             <div class="bg-linen-100 p-6 rounded-2xl border border-linen-300 shadow-sm text-center">
-              <div class="w-12 h-12 mx-auto rounded-full bg-stone-300 text-stone-800 flex items-center justify-center font-serif text-xl font-bold mb-3">🪵</div>
-              <h4 class="font-serif font-bold text-base text-stone-900 mb-1">Beech & Walnut Hoops</h4>
-              <p class="text-xs text-stone-600 leading-relaxed">Sustainably harvested hardwood frames, laser cut for smooth precision and hand-polished with organic beeswax.</p>
+              <div class="w-12 h-12 mx-auto rounded-full bg-stone-300 text-stone-800 flex items-center justify-center font-serif text-xl font-bold mb-3" data-content-key="about.mat3Icon">${about.mat3Icon || '🪵'}</div>
+              <h4 class="font-serif font-bold text-base text-stone-900 mb-1" data-content-key="about.mat3Title">
+                ${about.mat3Title || 'Beech & Walnut Hoops'}
+              </h4>
+              <p class="text-xs text-stone-600 leading-relaxed" data-content-key="about.mat3Desc">
+                ${about.mat3Desc || 'Sustainably harvested hardwood frames, laser cut for smooth precision and hand-polished with organic beeswax.'}
+              </p>
             </div>
           </div>
         </div>
 
         <!-- Care Guide FAQ -->
         <div class="bg-linen-100 rounded-3xl p-6 sm:p-10 shadow-md border stitch-border-dashed">
-          <h3 class="font-serif text-2xl font-bold text-stone-900 mb-6 text-center">Keepsake Care Guide</h3>
+          <h3 class="font-serif text-2xl font-bold text-stone-900 mb-6 text-center" data-content-key="about.faqTitle">
+            ${about.faqTitle || 'Keepsake Care Guide'}
+          </h3>
           <div class="space-y-4 max-w-2xl mx-auto text-sm text-stone-700">
             <div class="p-4 rounded-xl bg-linen-200/50 border border-linen-300">
-              <p class="font-bold text-stone-900 mb-1">Are the keychains water-resistant?</p>
-              <p class="text-xs text-stone-600">Yes! Each finished embroidery disc receives two micro-coats of archival textile sealant to protect against light rain, hand moisture, and dust.</p>
+              <p class="font-bold text-stone-900 mb-1" data-content-key="about.faq1Question">
+                ${about.faq1Question || 'Are the keychains water-resistant?'}
+              </p>
+              <p class="text-xs text-stone-600" data-content-key="about.faq1Answer">
+                ${about.faq1Answer || 'Yes! Each finished embroidery disc receives two micro-coats of archival textile sealant to protect against light rain, hand moisture, and dust.'}
+              </p>
             </div>
             <div class="p-4 rounded-xl bg-linen-200/50 border border-linen-300">
-              <p class="font-bold text-stone-900 mb-1">How do I clean my embroidery?</p>
-              <p class="text-xs text-stone-600">If dust accumulates over time, gently brush the stitches with a soft dry makeup brush or clean toothbrush. Avoid submersion in water or harsh detergents.</p>
+              <p class="font-bold text-stone-900 mb-1" data-content-key="about.faq2Question">
+                ${about.faq2Question || 'How do I clean my embroidery?'}
+              </p>
+              <p class="text-xs text-stone-600" data-content-key="about.faq2Answer">
+                ${about.faq2Answer || 'If dust accumulates over time, gently brush the stitches with a soft dry makeup brush or clean toothbrush. Avoid submersion in water or harsh detergents.'}
+              </p>
             </div>
             <div class="p-4 rounded-xl bg-linen-200/50 border border-linen-300">
-              <p class="font-bold text-stone-900 mb-1">How long does a custom piece take?</p>
-              <p class="text-xs text-stone-600">Standard production takes 7 to 12 business days before dispatch. Rush commission slots are available upon request.</p>
+              <p class="font-bold text-stone-900 mb-1" data-content-key="about.faq3Question">
+                ${about.faq3Question || 'How long does a custom piece take?'}
+              </p>
+              <p class="text-xs text-stone-600" data-content-key="about.faq3Answer">
+                ${about.faq3Answer || 'Standard production takes 7 to 12 business days before dispatch. Rush commission slots are available upon request.'}
+              </p>
             </div>
           </div>
         </div>

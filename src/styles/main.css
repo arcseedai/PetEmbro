@@ -112,15 +112,23 @@
   gap: 1.5rem;
   width: max-content;
   will-change: transform;
-  animation: marqueeLeft 35s linear infinite;
+  animation: marqueeLeft 45s linear infinite;
+}
+
+@media (min-width: 768px) {
+  .featured-marquee-track {
+    gap: 2.25rem;
+  }
 }
 
 .featured-marquee-container {
   overflow: hidden;
   position: relative;
   width: 100%;
-  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
 }
 
 .featured-marquee-container:hover .featured-marquee-track {

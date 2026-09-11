@@ -596,6 +596,7 @@ class PetEmbroCustomizer {
         this.showToast(`Added ${label}`);
         renderNavbar(this.currentRoute);
         renderFooter();
+        if (this.currentRoute === 'contact') renderContactPage();
         renderModalContent();
       });
 
@@ -607,6 +608,7 @@ class PetEmbroCustomizer {
           this.showToast('Removed social link');
           renderNavbar(this.currentRoute);
           renderFooter();
+          if (this.currentRoute === 'contact') renderContactPage();
           renderModalContent();
         });
       });
@@ -634,6 +636,7 @@ class PetEmbroCustomizer {
         closeModal();
         renderNavbar(this.currentRoute);
         renderFooter();
+        if (this.currentRoute === 'contact') this.handleRoute();
       });
     };
 

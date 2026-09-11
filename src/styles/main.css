@@ -141,13 +141,15 @@
 /* Customizer controls visibility - only show on customizer page */
 #btn-add-faq,
 .faq-actions,
-.btn-manage-commission-categories {
+.btn-manage-commission-categories,
+.customizer-socials-trigger {
   display: none !important;
 }
 
 body.customizer-active #btn-add-faq,
 body.customizer-active .faq-actions,
-body.customizer-active .btn-manage-commission-categories {
+body.customizer-active .btn-manage-commission-categories,
+body.customizer-active .customizer-socials-trigger {
   display: flex !important;
 }
 

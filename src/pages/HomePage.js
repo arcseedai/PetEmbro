@@ -2,6 +2,7 @@
 import { getSiteContent, getRandomFeaturedArtwork, getCommissionCategories } from '../services/contentStore.js';
 import { sendInquiry } from '../services/formService.js';
 import { downscaleImage, formatFileSize } from '../utils/imageDownscaler.js';
+import { uploadImageToImgBB } from '../services/imageUploadService.js';
 
 export function renderHomePage() {
   const root = document.getElementById('app-root');
@@ -556,11 +557,29 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
       `;
     }
 
-    // Attach reference photos
-    homeUploadedPhotos.forEach((photo, idx) => {
-      formData.append('attachment', photo.file, photo.fileName);
-      formData.append(`attachment_${idx + 1}`, photo.file, photo.fileName);
-    });
+    // Upload photos to ImgBB for free hosting
+    const photoLinks = [];
+    if (homeUploadedPhotos.length > 0) {
+      for (let i = 0; i < homeUploadedPhotos.length; i++) {
+        const photo = homeUploadedPhotos[i];
+        try {
+          const upRes = await uploadImageToImgBB(photo.file || photo.blob, photo.fileName);
+          if (upRes.success && upRes.url) {
+            formData.append(`pet_photo_${i + 1}`, upRes.url);
+            photoLinks.push(`• Reference Photo ${i + 1} (${photo.fileName}): ${upRes.url}`);
+          }
+        } catch (upErr) {
+          console.warn('Could not upload home photo to ImgBB:', photo.fileName, upErr);
+        }
+      }
+    }
+
+    if (photoLinks.length > 0) {
+      const originalMessage = formData.get('message') || '';
+      const photoSection = `\n\n════════════════════════════════════\n📷 CLIENT ATTACHED PHOTOS (${photoLinks.length}):\n` + photoLinks.join('\n') + `\n════════════════════════════════════`;
+      formData.set('message', originalMessage + photoSection);
+      formData.append('photo_links', photoLinks.join('\n'));
+    }
 
     const result = await sendInquiry(formData, 'Homepage Commission Inquiry');
 

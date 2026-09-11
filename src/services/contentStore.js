@@ -47,7 +47,9 @@ function isLocalOrLanServer() {
     h.startsWith('192.168.') ||
     h.startsWith('10.') ||
     h.startsWith('172.') ||
-    h.endsWith('.local');
+    h.endsWith('.local') ||
+    h.endsWith('.trycloudflare.com') ||
+    h.endsWith('.loca.lt');
 }
 
 // Auto-sync function to write to disk via local Vite dev server

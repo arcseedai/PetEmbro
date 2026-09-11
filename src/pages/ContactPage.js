@@ -3,6 +3,7 @@ import { getSiteContent, getCommissionCategories, getSocialLinks } from '../serv
 import { getSocialIconSvg } from '../utils/socialIcons.js';
 import { sendInquiry } from '../services/formService.js';
 import { downscaleImage, dataUrlToFile, formatFileSize } from '../utils/imageDownscaler.js';
+import { uploadImageToImgBB } from '../services/imageUploadService.js';
 
 export function renderContactPage() {
   const root = document.getElementById('app-root');
@@ -360,16 +361,45 @@ function bindContactEvents() {
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span>Sending Inquiry & Photos...</span>
+          <span id="contact-submit-status-text">Preparing submission...</span>
         </span>
       `;
     }
 
-    // Attach all photos (including 3D preview if present)
-    uploadedPhotos.forEach((photo, idx) => {
-      formData.append('attachment', photo.file, photo.fileName);
-      formData.append(`attachment_${idx + 1}`, photo.file, photo.fileName);
-    });
+    // Upload any photos (including 3D preview) to ImgBB for free hosting
+    const photoLinks = [];
+    if (uploadedPhotos.length > 0) {
+      const statusText = document.getElementById('contact-submit-status-text');
+      for (let i = 0; i < uploadedPhotos.length; i++) {
+        const photo = uploadedPhotos[i];
+        if (statusText) {
+          statusText.textContent = `Uploading photo ${i + 1} of ${uploadedPhotos.length}...`;
+        }
+        try {
+          const upRes = await uploadImageToImgBB(photo.file || photo.blob, photo.fileName);
+          if (upRes.success && upRes.url) {
+            const label = photo.is3DPreview ? '3D Keepsake Preview' : `Pet Reference Photo ${i + 1}`;
+            formData.append(photo.is3DPreview ? 'preview_3d_render' : `pet_photo_${i + 1}`, upRes.url);
+            photoLinks.push(`• ${label} (${photo.fileName}): ${upRes.url}`);
+          }
+        } catch (upErr) {
+          console.warn('Could not upload photo to ImgBB:', photo.fileName, upErr);
+        }
+      }
+    }
+
+    // Embed all photo links directly into the message text
+    if (photoLinks.length > 0) {
+      const originalMessage = formData.get('message') || '';
+      const photoSection = `\n\n════════════════════════════════════\n📷 CLIENT ATTACHED PHOTOS (${photoLinks.length}):\n` + photoLinks.join('\n') + `\n════════════════════════════════════`;
+      formData.set('message', originalMessage + photoSection);
+      formData.append('photo_links', photoLinks.join('\n'));
+    }
+
+    const statusTextFinal = document.getElementById('contact-submit-status-text');
+    if (statusTextFinal) {
+      statusTextFinal.textContent = 'Sending Inquiry to Inbox...';
+    }
 
     const result = await sendInquiry(formData, 'Contact Page Inquiry');
 

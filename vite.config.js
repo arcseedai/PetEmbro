@@ -42,8 +42,9 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    allowedHosts: true,
     watch: {
-      ignored: ['**/downloads/**', '**/scratch/**', '**/public/assets/New folder/**', '**/src/data/**'],
+      ignored: ['**/downloads/**', '**/scratch/**', '**/public/assets/New folder/**', '**/src/data/**', '**/*.exe', '**/cloudflared*'],
     },
   },
   build: {

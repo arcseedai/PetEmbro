@@ -543,7 +543,7 @@
                 </div>
                 <select name="format" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40">
                   ${a.map(p=>`
-                    <option value="${p.id}">${p.label}</option>
+                    <option value="${p.label}">${p.label}</option>
                   `).join("")}
                 </select>
               </div>
@@ -629,14 +629,10 @@
           </svg>
           <span>Sending Inquiry & Photos...</span>
         </span>
-      `);const U=[];if(a.length>0)for(let L=0;L<a.length;L++){const F=a[L];try{const C=await km(F.file||F.blob,F.fileName);C.success&&C.url&&(m.append(`pet_photo_${L+1}`,C.url),U.push(`• Reference Photo ${L+1} (${F.fileName}): ${C.url}`))}catch(C){console.warn("Could not upload home photo to ImgBB:",F.fileName,C)}}if(U.length>0){const L=m.get("message")||"",F=`
+      `);const U=[];if(a.length>0)for(let L=0;L<a.length;L++){const F=a[L];try{const C=await km(F.file||F.blob,F.fileName);C.success&&C.url&&U.push(`Photo ${L+1} (${F.fileName}):
+${C.url}`)}catch(C){console.warn("Could not upload home photo to ImgBB:",F.fileName,C)}}U.length>0&&m.append(`📷 CLIENT ATTACHED PHOTOS (${U.length})`,U.join(`
 
-════════════════════════════════════
-📷 CLIENT ATTACHED PHOTOS (${U.length}):
-`+U.join(`
-`)+`
-════════════════════════════════════`;m.set("message",L+F),m.append("photo_links",U.join(`
-`))}const S=await Vm(m,"Homepage Commission Inquiry");r&&(r.disabled=!1,r.innerHTML=o),S.success?(Gd(`✓ Thank you ${f}! Your inquiry and photos for ${M} have been delivered. We will reply within 24 hours.`),s.reset(),a=[],g()):Gd(`⚠️ Could not send inquiry: ${S.message||"Please email us directly"}`)})}function Gd(i){const e=document.getElementById("toast-container");if(!e)return;const t=document.createElement("div");t.className="bg-stone-900 text-linen-100 px-5 py-3 rounded-2xl shadow-2xl border border-linen-300 text-sm flex items-center gap-3 transform transition-all duration-300 translate-y-4 opacity-0 pointer-events-auto",t.innerHTML=`
+`));const S=await Vm(m,"Homepage Commission Inquiry");r&&(r.disabled=!1,r.innerHTML=o),S.success?(Gd(`✓ Thank you ${f}! Your inquiry and photos for ${M} have been delivered. We will reply within 24 hours.`),s.reset(),a=[],g()):Gd(`⚠️ Could not send inquiry: ${S.message||"Please email us directly"}`)})}function Gd(i){const e=document.getElementById("toast-container");if(!e)return;const t=document.createElement("div");t.className="bg-stone-900 text-linen-100 px-5 py-3 rounded-2xl shadow-2xl border border-linen-300 text-sm flex items-center gap-3 transform transition-all duration-300 translate-y-4 opacity-0 pointer-events-auto",t.innerHTML=`
     <span class="text-emerald-400 text-base">✓</span>
     <span>${i}</span>
   `,e.appendChild(t),setTimeout(()=>{t.classList.remove("translate-y-4","opacity-0")},50),setTimeout(()=>{t.classList.add("opacity-0","translate-y-2"),setTimeout(()=>t.remove(),350)},4500)}/**
@@ -5265,7 +5261,7 @@ void main() {
                   </div>
                   <select name="keepsake_format" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:ring-2 focus:ring-terracotta/40 focus:outline-none">
                     ${r.map(a=>`
-                      <option value="${a.id}">${a.label}</option>
+                      <option value="${a.label}">${a.label}</option>
                     `).join("")}
                   </select>
                 </div>
@@ -5354,14 +5350,10 @@ void main() {
           </svg>
           <span id="contact-submit-status-text">Preparing submission...</span>
         </span>
-      `);const m=[];if(n.length>0){const L=document.getElementById("contact-submit-status-text");for(let F=0;F<n.length;F++){const C=n[F];L&&(L.textContent=`Uploading photo ${F+1} of ${n.length}...`);try{const T=await km(C.file||C.blob,C.fileName);if(T.success&&T.url){const y=C.is3DPreview?"3D Keepsake Preview":`Pet Reference Photo ${F+1}`;g.append(C.is3DPreview?"preview_3d_render":`pet_photo_${F+1}`,T.url),m.push(`• ${y} (${C.fileName}): ${T.url}`)}}catch(T){console.warn("Could not upload photo to ImgBB:",C.fileName,T)}}}if(m.length>0){const L=g.get("message")||"",F=`
+      `);const m=[];if(n.length>0){const L=document.getElementById("contact-submit-status-text");for(let F=0;F<n.length;F++){const C=n[F];L&&(L.textContent=`Uploading photo ${F+1} of ${n.length}...`);try{const T=await km(C.file||C.blob,C.fileName);if(T.success&&T.url){const y=C.is3DPreview?"3D Keepsake Preview":`Photo ${F+1}`;m.push(`${y} (${C.fileName}):
+${T.url}`)}}catch(T){console.warn("Could not upload photo to ImgBB:",C.fileName,T)}}}m.length>0&&g.append(`📷 CLIENT ATTACHED PHOTOS (${m.length})`,m.join(`
 
-════════════════════════════════════
-📷 CLIENT ATTACHED PHOTOS (${m.length}):
-`+m.join(`
-`)+`
-════════════════════════════════════`;g.set("message",L+F),g.append("photo_links",m.join(`
-`))}const f=document.getElementById("contact-submit-status-text");f&&(f.textContent="Sending Inquiry to Inbox...");const M=await Vm(g,"Contact Page Inquiry");M.success?(sessionStorage.removeItem("petembro_attached_preview"),sessionStorage.removeItem("petembro_attached_style"),n=[],i.innerHTML=`
+`));const f=document.getElementById("contact-submit-status-text");f&&(f.textContent="Sending Inquiry to Inbox...");const M=await Vm(g,"Contact Page Inquiry");M.success?(sessionStorage.removeItem("petembro_attached_preview"),sessionStorage.removeItem("petembro_attached_style"),n=[],i.innerHTML=`
         <div class="p-8 rounded-3xl bg-linen-200/80 border border-linen-300 text-center space-y-4">
           <div class="w-14 h-14 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl font-bold shadow-sm">
             ✓

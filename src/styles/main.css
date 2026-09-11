@@ -97,6 +97,36 @@
   animation: gentleHover 4s ease-in-out infinite;
 }
 
+/* Continuous smooth sliding marquee animation (leftwards) */
+@keyframes marqueeLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.featured-marquee-track {
+  display: flex;
+  gap: 1.5rem;
+  width: max-content;
+  will-change: transform;
+  animation: marqueeLeft 35s linear infinite;
+}
+
+.featured-marquee-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.featured-marquee-container:hover .featured-marquee-track {
+  animation-play-state: paused;
+}
+
 /* SVG Stitch Draw Effect */
 .stitch-path-animated {
   stroke-dasharray: 600;

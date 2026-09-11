@@ -76,32 +76,57 @@ export function renderHomePage() {
           </a>
         </div>
 
-        <!-- Featured Reference Keychain Preview Float -->
-        <div class="mt-14 max-w-sm sm:max-w-md mx-auto relative group" id="hero-featured-showcase">
-          <div class="p-3 bg-white/80 backdrop-blur rounded-3xl shadow-xl border border-linen-300 transform group-hover:scale-[1.02] transition-transform duration-300">
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
-              <img id="hero-featured-img" src="${displayImage}" data-image-key="hero.featuredImage" alt="${displayName} Keepsake" class="w-full h-full object-cover object-center transition-opacity duration-300" />
-              <div class="absolute bottom-3 left-3 right-3 p-3 bg-stone-900/85 backdrop-blur-md rounded-xl text-white text-left flex items-center justify-between">
-                <div>
-                  <p id="hero-featured-name" class="font-serif font-bold text-sm text-amber-100" data-content-key="hero.featuredName">${displayName}</p>
-                  <p id="hero-featured-desc" class="text-[11px] text-linen-300" data-content-key="hero.featuredDesc">${displayDesc}</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  ${pool.length > 1 ? `
-                    <button type="button" id="hero-shuffle-btn" class="px-2.5 py-1.5 rounded-full bg-stone-800/90 hover:bg-terracotta text-white text-[11px] font-medium border border-white/20 flex items-center gap-1 transition" title="Randomize / Next Featured Artwork">
-                      <span>🎲</span>
-                      <span id="hero-featured-counter" class="text-[10px] text-stone-300">${currentFeaturedIndex + 1}/${pool.length}</span>
-                    </button>
-                  ` : ''}
-                  <a href="#preview" class="text-xs bg-terracotta hover:bg-terracotta-dark px-3 py-1.5 rounded-full font-medium transition">Try 3D View</a>
-                </div>
-              </div>
+        <!-- Featured Artworks Continuous Sliding Showcase Banner -->
+        <div class="mt-14 w-full relative" id="hero-featured-showcase">
+          <!-- Marquee Slider Container with Soft Edge Fading -->
+          <div class="featured-marquee-container py-4">
+            <div class="featured-marquee-track">
+              ${(() => {
+                // Determine the items to display: use marked featured artworks (or all portfolio items if none marked)
+                let itemsList = pool.length > 0 ? pool : [featuredArt];
+                // Ensure at least 4-8 items for smooth, continuous looping by repeating the set
+                let repeatedList = [...itemsList];
+                while (repeatedList.length < 8) {
+                  repeatedList = repeatedList.concat(itemsList);
+                }
+                // Double the repeated set for seamless 50% translation infinite loop
+                const fullLoop = repeatedList.concat(repeatedList);
+
+                return fullLoop.map((item, idx) => {
+                  const itemAdd = item.additionalInfo || item.breed || '';
+                  const itemTitle = item.name ? (itemAdd ? `${item.name} (${itemAdd})` : item.name) : 'Keepsake';
+                  const itemSub = item.categoryLabel || item.size || 'Miniature Hoop';
+
+                  return `
+                    <div class="w-64 sm:w-72 flex-shrink-0 group/card text-left transition transform hover:-translate-y-1 duration-300">
+                      <div class="p-3 bg-white/90 backdrop-blur rounded-3xl shadow-lg hover:shadow-2xl border border-linen-300">
+                        <div class="relative overflow-hidden rounded-2xl aspect-[4/5] bg-linen-200">
+                          <img src="${item.image || '/assets/keychain_ref.png'}" alt="${itemTitle}" class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-500" loading="lazy" />
+                          <div class="absolute bottom-2.5 left-2.5 right-2.5 p-2.5 bg-stone-900/85 backdrop-blur-md rounded-xl text-white flex items-center justify-between">
+                            <div class="truncate mr-2">
+                              <p class="font-serif font-bold text-xs sm:text-sm text-amber-100 truncate">${itemTitle}</p>
+                              <p class="text-[10px] text-linen-300 truncate">${itemSub}</p>
+                            </div>
+                            <a href="#preview" class="text-[11px] bg-terracotta hover:bg-terracotta-dark px-2.5 py-1 rounded-full font-medium transition flex-shrink-0">
+                              3D View
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('');
+              })()}
             </div>
           </div>
-          <!-- Craft Guarantee Badge -->
-          <div class="absolute -bottom-4 -right-4 bg-wood-dark text-linen-100 px-4 py-2 rounded-2xl shadow-lg border-2 border-linen-100 flex items-center gap-2 text-xs font-semibold">
-            <span class="text-needle-gold text-base">★</span>
-            <span id="hero-featured-badge-text">${pool.length > 1 ? `Featured Keepsake (${pool.length} in rotation)` : '100% Hand-Stitched'}</span>
+
+          <!-- Subtle Bottom Indicator Badge -->
+          <div class="flex items-center justify-center mt-3 gap-2">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-linen-200/90 border border-linen-300 text-stone-600 text-[11px] font-medium shadow-sm">
+              <span class="text-needle-gold text-xs">★</span>
+              <span>${pool.length > 1 ? `${pool.length} Featured Keepsakes in rotation` : '100% Hand-Stitched Heirloom Keepsakes'}</span>
+              <span class="text-stone-400 font-mono text-[10px] ml-1">⏸ Hover to pause</span>
+            </div>
           </div>
         </div>
       </div>

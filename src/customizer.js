@@ -218,24 +218,20 @@ class PetEmbroCustomizer {
       if (!item) return;
 
       const actions = document.createElement('div');
-      actions.className = 'customizer-card-actions flex items-center justify-between gap-1.5 p-2 bg-stone-900/90 backdrop-blur text-white text-[11px] border-b border-linen-300 select-none';
+      actions.className = 'customizer-card-actions flex items-center justify-between gap-1 p-2 bg-stone-900/95 backdrop-blur text-white text-[11px] border-b border-linen-300 select-none';
       actions.innerHTML = `
-        <div class="flex items-center gap-1.5">
-          <span class="portfolio-drag-handle px-1.5 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white cursor-grab active:cursor-grabbing font-mono text-xs flex items-center gap-1" title="Drag to reorder this artwork">
-            <span>⠿</span>
-            <span class="text-[10px] font-sans">Move</span>
-          </span>
-          <button class="px-2 py-1 rounded ${item.featured ? 'bg-amber-600 hover:bg-amber-500 text-white font-bold' : 'bg-stone-800 hover:bg-stone-700 text-stone-300'} transition flex items-center gap-1 btn-toggle-featured" data-item-id="${itemId}" title="${item.featured ? 'Marked as Featured in Header Showcase (Click to unfeature)' : 'Click to feature in Header Showcase'}">
-            <span>${item.featured ? '★ Featured' : '☆ Feature'}</span>
-          </button>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <label class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 cursor-pointer transition flex items-center gap-1" title="Replace this photo">
-            <span>📷</span> Photo
+        <button class="px-2 py-1 rounded ${item.featured ? 'bg-amber-600 hover:bg-amber-500 text-white font-bold' : 'bg-stone-800 hover:bg-stone-700 text-stone-300'} transition flex items-center gap-1 btn-toggle-featured flex-shrink-0" data-item-id="${itemId}" title="${item.featured ? 'Marked as Featured in Header Showcase (Click to unfeature)' : 'Click to feature in Header Showcase'}">
+          <span>${item.featured ? '★ Featured' : '☆ Feature'}</span>
+        </button>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <label class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 cursor-pointer transition flex items-center gap-1" title="Replace photo">
+            <span>📷</span>
+            <span class="hidden sm:inline">Photo</span>
             <input type="file" accept="image/*" class="hidden customizer-replace-photo-input" data-item-id="${itemId}">
           </label>
           <button class="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-200 transition flex items-center gap-1 btn-edit-portfolio" data-item-id="${itemId}" title="Edit text and specifications">
-            <span>✏️</span> Edit
+            <span>✏️</span>
+            <span class="hidden sm:inline">Edit</span>
           </button>
           <button class="px-2 py-1 rounded bg-red-900/80 hover:bg-red-800 text-white transition flex items-center gap-1 btn-delete-portfolio" data-item-id="${itemId}" title="Delete artwork">
             <span>🗑️</span>

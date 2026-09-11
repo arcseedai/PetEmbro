@@ -40,6 +40,8 @@ export default defineConfig({
   base: './',
   plugins: [saveContentPlugin()],
   server: {
+    host: '0.0.0.0',
+    port: 5173,
     watch: {
       ignored: ['**/downloads/**', '**/scratch/**', '**/public/assets/New folder/**', '**/src/data/**'],
     },

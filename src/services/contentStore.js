@@ -39,9 +39,20 @@ export function getSiteContent() {
   return JSON.parse(JSON.stringify(defaultSiteContent));
 }
 
+function isLocalOrLanServer() {
+  if (typeof window === 'undefined') return false;
+  const h = window.location.hostname;
+  return h === 'localhost' ||
+    h === '127.0.0.1' ||
+    h.startsWith('192.168.') ||
+    h.startsWith('10.') ||
+    h.startsWith('172.') ||
+    h.endsWith('.local');
+}
+
 // Auto-sync function to write to disk via local Vite dev server
 function syncToDisk(data) {
-  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+  if (isLocalOrLanServer()) {
     fetch('/api/save-content', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -51,7 +62,7 @@ function syncToDisk(data) {
 }
 
 // Auto-sync on script load if running locally and localStorage has customized data
-if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+if (isLocalOrLanServer()) {
   try {
     const existing = localStorage.getItem(STORAGE_KEY);
     if (existing) {

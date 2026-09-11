@@ -150,7 +150,7 @@ export function renderContactPage() {
                   </div>
                   <select name="keepsake_format" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:ring-2 focus:ring-terracotta/40 focus:outline-none">
                     ${categories.map(c => `
-                      <option value="${c.id}">${c.label}</option>
+                      <option value="${c.label}">${c.label}</option>
                     `).join('')}
                   </select>
                 </div>
@@ -367,7 +367,7 @@ function bindContactEvents() {
     }
 
     // Upload any photos (including 3D preview) to ImgBB for free hosting
-    const photoLinks = [];
+    const photoEntries = [];
     if (uploadedPhotos.length > 0) {
       const statusText = document.getElementById('contact-submit-status-text');
       for (let i = 0; i < uploadedPhotos.length; i++) {
@@ -378,9 +378,8 @@ function bindContactEvents() {
         try {
           const upRes = await uploadImageToImgBB(photo.file || photo.blob, photo.fileName);
           if (upRes.success && upRes.url) {
-            const label = photo.is3DPreview ? '3D Keepsake Preview' : `Pet Reference Photo ${i + 1}`;
-            formData.append(photo.is3DPreview ? 'preview_3d_render' : `pet_photo_${i + 1}`, upRes.url);
-            photoLinks.push(`• ${label} (${photo.fileName}): ${upRes.url}`);
+            const label = photo.is3DPreview ? '3D Keepsake Preview' : `Photo ${i + 1}`;
+            photoEntries.push(`${label} (${photo.fileName}):\n${upRes.url}`);
           }
         } catch (upErr) {
           console.warn('Could not upload photo to ImgBB:', photo.fileName, upErr);
@@ -388,12 +387,9 @@ function bindContactEvents() {
       }
     }
 
-    // Embed all photo links directly into the message text
-    if (photoLinks.length > 0) {
-      const originalMessage = formData.get('message') || '';
-      const photoSection = `\n\n════════════════════════════════════\n📷 CLIENT ATTACHED PHOTOS (${photoLinks.length}):\n` + photoLinks.join('\n') + `\n════════════════════════════════════`;
-      formData.set('message', originalMessage + photoSection);
-      formData.append('photo_links', photoLinks.join('\n'));
+    // Add ONLY ONE single clean field for all attached photos
+    if (photoEntries.length > 0) {
+      formData.append(`📷 CLIENT ATTACHED PHOTOS (${photoEntries.length})`, photoEntries.join('\n\n'));
     }
 
     const statusTextFinal = document.getElementById('contact-submit-status-text');

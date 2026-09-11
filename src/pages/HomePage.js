@@ -339,7 +339,7 @@ export function renderHomePage() {
                 </div>
                 <select name="format" class="w-full px-4 py-3 rounded-xl bg-white border border-linen-300 text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40">
                   ${categories.map(c => `
-                    <option value="${c.id}">${c.label}</option>
+                    <option value="${c.label}">${c.label}</option>
                   `).join('')}
                 </select>
               </div>
@@ -558,15 +558,14 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
     }
 
     // Upload photos to ImgBB for free hosting
-    const photoLinks = [];
+    const photoEntries = [];
     if (homeUploadedPhotos.length > 0) {
       for (let i = 0; i < homeUploadedPhotos.length; i++) {
         const photo = homeUploadedPhotos[i];
         try {
           const upRes = await uploadImageToImgBB(photo.file || photo.blob, photo.fileName);
           if (upRes.success && upRes.url) {
-            formData.append(`pet_photo_${i + 1}`, upRes.url);
-            photoLinks.push(`• Reference Photo ${i + 1} (${photo.fileName}): ${upRes.url}`);
+            photoEntries.push(`Photo ${i + 1} (${photo.fileName}):\n${upRes.url}`);
           }
         } catch (upErr) {
           console.warn('Could not upload home photo to ImgBB:', photo.fileName, upErr);
@@ -574,11 +573,9 @@ function bindHomeEvents(pool = [], initialIndex = 0) {
       }
     }
 
-    if (photoLinks.length > 0) {
-      const originalMessage = formData.get('message') || '';
-      const photoSection = `\n\n════════════════════════════════════\n📷 CLIENT ATTACHED PHOTOS (${photoLinks.length}):\n` + photoLinks.join('\n') + `\n════════════════════════════════════`;
-      formData.set('message', originalMessage + photoSection);
-      formData.append('photo_links', photoLinks.join('\n'));
+    // Add ONLY ONE single clean field for all attached photos
+    if (photoEntries.length > 0) {
+      formData.append(`📷 CLIENT ATTACHED PHOTOS (${photoEntries.length})`, photoEntries.join('\n\n'));
     }
 
     const result = await sendInquiry(formData, 'Homepage Commission Inquiry');

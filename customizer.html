@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetEmbro | Visual Site Customizer</title>
+  <meta name="description" content="Visual in-browser customizer for PetEmbro website content, portfolio, and social media." />
+  <link rel="icon" type="image/png" href="./assets/Logo_basic_white.png" />
+  <!-- Google Fonts: Cormorant Garamond & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            linen: {
+              50: '#FDFBF7',
+              100: '#FAF6F0',
+              200: '#F4EFE6',
+              300: '#E8DFD1',
+              400: '#D5C7B3',
+              900: '#2A2520'
+            },
+            wood: {
+              light: '#E5C9A4',
+              DEFAULT: '#C49A6C',
+              medium: '#9E6F40',
+              dark: '#5C381E',
+              walnut: '#3E2412'
+            },
+            terracotta: {
+              DEFAULT: '#C25D43',
+              dark: '#9E442D',
+              light: '#E3876F'
+            },
+            needle: {
+              silver: '#A0AEC0',
+              gold: '#D4AF37',
+              thread: '#B94A48'
+            }
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Playfair Display', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Visual Customizer Specific Accents */
+    .customizer-editable {
+      position: relative;
+      cursor: text;
+      transition: all 0.2s ease;
+      outline: 1.5px dashed rgba(194, 93, 67, 0.4);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    .customizer-editable:hover {
+      outline-color: #C25D43;
+      background-color: rgba(194, 93, 67, 0.06);
+    }
+    .customizer-editable:focus {
+      outline: 2px solid #C25D43;
+      background-color: rgba(194, 93, 67, 0.08);
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/customizer-2hNHILD0.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/ContactPage-v98l987U.js">
+  <link rel="stylesheet" crossorigin href="./assets/ContactPage-xmnwrPOD.css">
+</head>
+<body class="customizer-active bg-linen-100 text-stone-800 font-sans antialiased selection:bg-terracotta/20 selection:text-terracotta-dark min-h-screen flex flex-col relative overflow-x-hidden pt-14">
+
+  <!-- TOP PERSISTENT CUSTOMIZER TOOLBAR -->
+  <div id="customizer-toolbar" class="fixed top-0 inset-x-0 z-50 bg-stone-900 text-linen-100 shadow-xl border-b border-stone-700 text-xs py-2 px-3 sm:px-6 flex items-center justify-between gap-3">
+    <!-- Brand & Status -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 font-bold tracking-wide">
+        <span class="text-base">🎨</span>
+        <span class="font-serif text-sm text-wood-light hidden sm:inline">PetEmbro Customizer</span>
+      </div>
+      <div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-800 text-emerald-400 text-[11px] font-medium border border-emerald-500/30">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Auto-Save Enabled</span>
+      </div>
+    </div>
+
+    <!-- Quick Navigation Links -->
+    <div class="flex items-center gap-1 bg-stone-800 p-1 rounded-xl border border-stone-700 text-[11px]">
+      <a href="#home" class="customizer-nav-btn px-2.5 py-1 rounded-lg hover:bg-stone-700 text-stone-300 hover:text-white transition" data-route="home">Home</a>
+      <a href="#portfolio" class="customizer-nav-btn px-2.5 py-1 rounded-lg hover:bg-stone-700 text-stone-300 hover:text-white transition" data-route="portfolio">Portfolio</a>
+      <a href="#about" class="customizer-nav-btn px-2.5 py-1 rounded-lg hover:bg-stone-700 text-stone-300 hover:text-white transition" data-route="about">About</a>
+      <a href="#contact" class="customizer-nav-btn px-2.5 py-1 rounded-lg hover:bg-stone-700 text-stone-300 hover:text-white transition" data-route="contact">Contact</a>
+    </div>
+
+    <!-- Control Actions -->
+    <div class="flex items-center gap-2">
+      <!-- Edit Socials Modal Trigger -->
+      <button id="btn-edit-socials" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 transition flex items-center gap-1.5" title="Edit Social Links">
+        <span>🔗</span>
+        <span class="hidden lg:inline">Socials</span>
+      </button>
+
+      <!-- Edit Commission Products / Categories Trigger -->
+      <button id="btn-customizer-categories" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 transition flex items-center gap-1.5" title="Edit Commission Products & Categories">
+        <span>🛍️</span>
+        <span class="hidden lg:inline">Products</span>
+      </button>
+
+      <!-- Manage FAQs Trigger -->
+      <button id="btn-customizer-faqs" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 transition flex items-center gap-1.5" title="Manage Frequently Asked Questions">
+        <span>❓</span>
+        <span class="hidden lg:inline">FAQs</span>
+      </button>
+
+      <!-- Export JSON Button -->
+      <button id="btn-export-content" class="px-3 py-1.5 rounded-lg bg-wood-dark hover:bg-wood text-white font-medium shadow transition flex items-center gap-1.5" title="Download siteContent.json">
+        <span>💾</span>
+        <span class="hidden sm:inline">Export JSON</span>
+      </button>
+
+      <!-- Reset Defaults Button -->
+      <button id="btn-reset-content" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-red-900/60 text-stone-300 hover:text-red-200 border border-stone-700 transition flex items-center gap-1.5" title="Reset all texts & images back to original defaults">
+        <span>🔄</span>
+        <span class="hidden xl:inline">Reset Defaults</span>
+      </button>
+
+      <!-- View Live Site Link -->
+      <a href="/" target="_blank" class="px-3 py-1.5 rounded-lg bg-terracotta hover:bg-terracotta-dark text-white font-semibold shadow transition flex items-center gap-1.5">
+        <span>🌐</span>
+        <span>View Live Site</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- FLOATING BOTTOM HELPER TIP -->
+  <div id="customizer-tip" class="fixed bottom-4 left-4 z-40 max-w-sm bg-stone-900/90 backdrop-blur text-linen-100 p-3.5 rounded-2xl shadow-2xl border border-stone-700 text-xs hidden sm:flex items-start gap-3 pointer-events-auto transition-all">
+    <span class="text-base text-wood-light flex-shrink-0">💡</span>
+    <div class="flex-grow">
+      <p class="font-bold text-wood-light">In-Place Editor Active</p>
+      <p class="text-stone-300 text-[11px] leading-snug mt-0.5">Click directly on any text with a dashed border to type your changes. In the Portfolio page, use buttons to add, replace photos, or delete artworks.</p>
+    </div>
+    <button id="btn-close-tip" class="text-stone-400 hover:text-white text-sm font-bold flex-shrink-0">✕</button>
+  </div>
+
+  <!-- Regular App Structure -->
+  <header id="site-header" class="sticky top-14 z-40 bg-linen-100 transition-all duration-300 border-b border-linen-300/60 shadow-sm"></header>
+  <div id="drawer-menu-container"></div>
+  <main id="app-root" class="flex-grow"></main>
+  <div id="stitch-anim-overlay" class="pointer-events-none fixed inset-0 z-50 overflow-hidden hidden"></div>
+  <footer id="site-footer" class="border-t border-linen-300 bg-linen-200/80 text-stone-700 mt-auto"></footer>
+
+  <!-- Lightbox Modal Container -->
+  <div id="lightbox-container"></div>
+
+  <!-- Customizer Modal Container (for Add/Edit Portfolio & Socials) -->
+  <div id="customizer-modal-container"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Load Customizer Script -->
+</body>
+</html>
